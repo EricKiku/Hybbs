@@ -4,9 +4,12 @@ const creatWindow = () => {
 
     const mainWin = new BrowserWindow({
         show: false,//先不显示，等待页面文件加载完成
-        height: 900,
-        width: 1400,
+        height: 800,
+        width: 1300,
+        minHeight: 800,
+        minWidth: 990,
         frame: false,//自定义窗体标题栏
+        resizable: false,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }

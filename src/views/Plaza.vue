@@ -1,0 +1,15 @@
+<template>
+    <div class="plaza">
+    </div>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue"
+
+</script>
+
+<style lang="less" scoped>
+.plaza {
+    width: 100%;
+}
+</style>

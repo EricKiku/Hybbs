@@ -1,4 +1,5 @@
 <template>
+    <!-- 标题栏 -->
     <div class="FormTitleBar">
         <div class="icon">
             <div class="formImg">
@@ -10,12 +11,12 @@
             <div @click="menuButtonClick('min')" class="btn formMin">
                 <img src="../assets/img/minimization.png" alt="最小化" title="最小化">
             </div>
-            <div v-if="!maximize" @click="maximumSwitching()" class="btn formMax">
-                <img src="../assets/img/maximize.png" alt="最大化" title="最大化">
+            <!-- <div v-if="!maximize" @click="maximumSwitching()" class="btn formMax">
+                <img src="../assets/img/max.png" alt="最大化" title="最大化">
             </div>
             <div v-if="maximize" @click="maximumSwitching()" class="btn formMax">
-                <img src="../assets/img/unmaximize.png" alt="还原" title="还原">
-            </div>
+                <img src="../assets/img/unmax.png" alt="还原" title="还原">
+            </div> -->
             <div @click="menuButtonClick('close')" class="btn close formClose">
                 <img src="../assets/img/close.png" alt="关闭" title="关闭">
             </div>
@@ -49,8 +50,10 @@ function maximumSwitching() {
 .FormTitleBar {
     height: 30px;
     width: 100%;
-    background-color: @Background;
+    background: @OutBackgroundLinear;
+    background: @OutBackgroundLinear2;
     -webkit-app-region: drag;
+    color: white;
     // 开启flex
     display: flex;
     justify-content: space-between;
@@ -69,6 +72,8 @@ function maximumSwitching() {
 
         .formTitle {
             line-height: 30px;
+            color: #7f7f7f;
+            font-size: 14px;
         }
     }
 
