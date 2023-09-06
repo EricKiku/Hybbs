@@ -15,6 +15,21 @@ const routes = [
         path: "/login",
         name: "/login",
         component: () => import("../components/Log&Reg.vue")
+    },
+    {
+        path: "/create_zone",
+        name: "/create_zone",
+        component: () => import("../views/CreateZone.vue")
+    },
+    {
+        path: "/zoneDetails",
+        name: "/zoneDetails",
+        component: () => import("../views/zoneDetails.vue")
+    },
+    {
+        path: "/userinfo",
+        name: "/userinfo",
+        component: () => import("../views/userInfo.vue")
     }
 ]
 

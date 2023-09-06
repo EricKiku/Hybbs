@@ -197,18 +197,13 @@ function login() {
             } else if (res.status == 200) {
                 // 200 登录成功
                 ElMessage({
-                    message: '登录成功，欢迎回来',
+                    message: '登录成功，欢迎回来(即将跳转..)',
                     type: 'success',
                 })
-                ElMessage({
-                    message: '即将跳转...',
-                    type: 'success',
-                })
-                // 把用户数据存储在store中
-
                 const user = res.data
-
-                userStore.setCurrentUser(user.u_id, user.u_email, user.u_password, user.u_nick)
+                // 把用户数据存储在store中
+                localStorage.setItem("user_id", user.u_id)
+                userStore.setCurrentUser(user)
 
                 // userStore.setCurrentUser()
                 setTimeout(() => {

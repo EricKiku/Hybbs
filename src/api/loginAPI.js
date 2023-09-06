@@ -48,3 +48,13 @@ export const loginAPI = (email, password) => {
     })
 }
 
+// 根据id登录
+export const loginByid = (id) => {
+    return request({
+        url: "/login/loginById",
+        method: "POST",
+        data: {
+            id
+        }
+    })
+}

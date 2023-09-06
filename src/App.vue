@@ -16,8 +16,20 @@ import FormTitleBar from "./components/FormTitleBar.vue";
 import Sidebar from "./components/Sidebar.vue";
 // 引入重置样式表
 import './assets/css/reset.css'
-import { ref } from "vue"
+import { ref, onMounted } from "vue"
+import { loginByid } from "./api/loginAPI"
+import { storeOfUser } from "./store/user"
+const userStore = storeOfUser()
+// 自动登录
+onMounted(() => {
 
+  if (localStorage.getItem("user_id")) {
+    let id = localStorage.getItem("user_id")
+    loginByid(id).then(res => {
+      userStore.setCurrentUser(res.data)
+    })
+  }
+})
 </script>
 
 <style lang="less" scoped>
@@ -27,4 +39,5 @@ import { ref } from "vue"
   position: absolute;
   z-index: 1;
   background-color: rgba(1, 1, 1, 0.2);
-}</style>
+}
+</style>

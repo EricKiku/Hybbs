@@ -43,8 +43,22 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue"
+import { ref, onMounted } from "vue"
 import { Search, Link } from '@element-plus/icons-vue'
+import { loginByid } from "../api/loginAPI"
+import { storeOfUser } from "../store/user"
+const userStore = storeOfUser()
+// 自动登录
+onMounted(() => {
+    
+
+    if (localStorage.getItem("user_id") && !userStore.currentUser.u_id) {
+        let id = localStorage.getItem("user_id")
+        loginByid(id).then(res => {
+            userStore.setCurrentUser(res.data)
+        })
+    }
+})
 // Head组件
 import Header from "../components/forum/Head.vue"
 // Brief_information组件

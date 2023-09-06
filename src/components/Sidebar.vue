@@ -4,7 +4,7 @@
 
         <div class="siderbar_item" @click="SwitchingRoute('forum')">
             <div class="activeStatus" :class="{ active: route.path == '/', unactive: route.path != '/' }"></div>
-            <div>
+            <div title="论坛">
                 <img class="img unactive_img" v-show="route.path != '/'" src="../assets/img/forum.png" alt="">
                 <img class="img active_img" v-show="route.path == '/'" src="../assets/img/forum-a.png" alt="">
                 <!-- <div class="text">
@@ -18,7 +18,7 @@
         </div>
         <div class="siderbar_item" @click="SwitchingRoute('plaza')">
             <div class="activeStatus" :class="{ active: route.path == '/plaza', unactive: route.path != '/plaza' }"></div>
-            <div>
+            <div title="广场">
                 <img v-show="route.path != '/plaza'" src="../assets/img/plaza.png" alt="">
                 <img v-show="route.path == '/plaza'" src="../assets/img/plaza-a.png" alt="">
                 <!-- <div class="text">
@@ -44,7 +44,6 @@ const router = useRouter();
 const route = useRoute();
 // 创建切换路由方法
 function SwitchingRoute(type) {
-    console.log(route.path);
     if (type === 'forum') {
         router.push({
             name: "/forum"

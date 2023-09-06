@@ -21,15 +21,10 @@
                             </el-icon>
                         </span>
                         <template #dropdown>
-                            <div>
-                                111111111111111
-                            </div>
-                            <div>
-                                1111111111111111
-                            </div>
-                            <div>
-                                1111111111111111
-                            </div>
+                            <el-dropdown-menu>
+                                <el-dropdown-item @click="router_login()"> 切换账号 </el-dropdown-item>
+                                <el-dropdown-item @click="createZone()"> 创建分区 </el-dropdown-item>
+                            </el-dropdown-menu>
                         </template>
                     </el-dropdown>
                 </div>
@@ -47,6 +42,7 @@ import { ArrowDown } from '@element-plus/icons-vue'
 import { Search, Link } from '@element-plus/icons-vue'
 import { useRouter } from "vue-router";
 import { storeOfUser } from "../../store/user"
+import { createZoneApi } from "../../api/zoneAPI"
 const router = useRouter();
 const userStore = storeOfUser()
 // head >>
@@ -61,6 +57,13 @@ function search_box_focus_event(status) {
 function router_login() {
     router.push({
         name: "/login"
+    })
+}
+// 创建一个分区
+function createZone() {
+    // 转到创建分区路由
+    router.push({
+        name: "/create_zone"
     })
 }
 // head <<
@@ -147,7 +150,8 @@ function router_login() {
             .nick {
                 font-size: 16px;
                 cursor: pointer;
-                &:hover{
+
+                &:hover {
                     border-bottom: 1px solid #5865F2;
                 }
             }
