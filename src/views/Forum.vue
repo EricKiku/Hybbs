@@ -3,6 +3,7 @@
         <!-- 标题组件 -->
         <Header></Header>
         <div class="main">
+
             <div class="left_userInfo">
 
                 <!-- 个人信息组件 -->
@@ -10,20 +11,9 @@
                 <!-- 关注分区列表组件 -->
                 <Attention></Attention>
 
+                <!-- 最新帖子 -->
+                <Newest></Newest>
 
-                <div class="newest_post">
-                    <div class="title">
-                        <img src="../assets/img/newest.png" alt="">
-                        最新帖子
-                    </div>
-                    <div class="post_list scrollbar">
-                        <div class="list_item" v-for="(item, index) in newest_post" :key="index">
-                            {{ item }}<br>{{ item }}<br>{{ item }}<br>{{ item }}<br>
-                            {{ item }}<br>{{ item }}<br>{{ item }}<br>{{ item }}<br>
-                            {{ item }}<br>{{ item }}<br>{{ item }}<br>{{ item }}<br>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="right_subzone">
 
@@ -34,8 +24,8 @@
 
             </div>
             <!-- 公告板 -->
-            <div class="call_board">
-                公告板
+            <div class="friend_list">
+                <FriendList></FriendList>
             </div>
 
         </div>
@@ -47,10 +37,12 @@ import { ref, onMounted } from "vue"
 import { Search, Link } from '@element-plus/icons-vue'
 import { loginByid } from "../api/loginAPI"
 import { storeOfUser } from "../store/user"
+import FriendList from "../components/forum/FriendList.vue"
+
 const userStore = storeOfUser()
 // 自动登录
 onMounted(() => {
-    
+
 
     if (localStorage.getItem("user_id") && !userStore.currentUser.u_id) {
         let id = localStorage.getItem("user_id")
@@ -69,14 +61,15 @@ import Attention from "../components/forum/Attention.vue"
 import Hot_zone from "../components/forum/Hot_zone.vue"
 // 热门帖子组件
 import Hot_post from "../components/forum/Hot_post.vue"
-
+// 最新帖子组件
+import Newest from "../components/forum/Newest.vue"
 
 
 // left_userInfo >>
 
 
 // 定义新帖子列表
-let newest_post = ['新帖子1号', '新帖子1号', '新帖子1号', '新帖子1号',]
+
 // left_userInfo <<
 
 </script>
@@ -89,43 +82,46 @@ let newest_post = ['新帖子1号', '新帖子1号', '新帖子1号', '新帖子
     // box-shadow: -6px 3px 8px -5px rgb(135, 135, 135);
     border-top-left-radius: 10px;
 
-
+    overflow: hidden;
 
     .main {
         // 开启flex
         display: flex;
         height: calc(100% - 60px);
 
+        background-image: url("../assets/img/hot_zone_bg.jpg");
+        /* 背景图垂直、水平均居中 */
+        background-position: center center;
+        /* 背景图不平铺 */
+        background-repeat: no-repeat;
+        /* 当内容高度大于图片高度时，背景图像的位置相对于viewport固定 */
+        background-attachment: fixed;
+        /* 让背景图基于容器大小伸缩 */
+        background-size: cover;
+        background-color: white;
+
         .left_userInfo {
             width: 200px;
             height: 100%;
-            background: @LeftListLinear;
-            background: @LeftListLinear2;
+            // background: @LeftListLinear;
+            // background: @LeftListLinear2;
+            background-color: rgba(255, 255, 255, 0.5);
 
-            .newest_post {
-                padding: 10px;
 
-                .title {
-                    color: #7c7c7c;
-                }
 
-                .post_list {
-                    overflow: auto;
-                    height: 290px;
-                    width: 100%;
-                }
-            }
         }
 
 
         .right_subzone {
             flex: 1;
             padding: 10px;
-            background-color: @MainBack;
+            background-color: rgba(255, 255, 255, 0.5);
+
+
         }
 
-        .call_board {
-            width: 150px;
+        .friend_list {
+            width: 160px;
             height: 100%;
             border: 1px solid #ccc;
         }

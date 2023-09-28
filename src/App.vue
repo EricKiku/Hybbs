@@ -1,11 +1,15 @@
 <template>
   <FormTitleBar />
+  <!-- 聊天窗口 -->
+  <ChatWindow v-if="chatStore.getChatStatus()"></ChatWindow>
   <template style="display: flex;height: calc(100% - 30px);background-color: #EBE1B7;">
     <!-- <div v-if="false" class="mask">
     </div> -->
     <Sidebar />
     <!-- 主界面展示路由 -->
-    <router-view></router-view>
+    <keep-alive>
+      <router-view></router-view>
+    </keep-alive>
   </template>
 </template>
 
@@ -14,12 +18,16 @@
 import FormTitleBar from "./components/FormTitleBar.vue";
 // 引入侧边栏
 import Sidebar from "./components/Sidebar.vue";
+// 引入聊天窗口
+import ChatWindow from "./components/forum/ChatWindow.vue"
+import { storeOfChat } from "./store/chat";
 // 引入重置样式表
 import './assets/css/reset.css'
 import { ref, onMounted } from "vue"
 import { loginByid } from "./api/loginAPI"
 import { storeOfUser } from "./store/user"
 const userStore = storeOfUser()
+const chatStore = storeOfChat()
 // 自动登录
 onMounted(() => {
 

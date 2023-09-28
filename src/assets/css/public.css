@@ -17,3 +17,11 @@
 .scrollbar::-webkit-scrollbar-corner {
   background: #179a16;
 }
+.mask {
+  height: calc(100% - 30px);
+  width: calc(100% - 57px);
+  position: absolute;
+  background-color: black;
+  opacity: 0.5;
+  z-index: 1;
+}

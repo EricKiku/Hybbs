@@ -58,10 +58,10 @@ function publish() {
     // 判断登录
     if (isLogin()) {
         // 判断是否在分区内
-        if (zoneStore.currentPreviewPost) {
+        if (zoneStore.currentPreviewZone) {
             // 判断标题和内容
             if (title.value && content.value) {
-                let z_id = zoneStore.currentPreviewPost['z_id']
+                let z_id = zoneStore.currentPreviewZone['z_id']
                 let u_id = userStore.currentUser['u_id']
                 let u_name = userStore.currentUser['u_nick']
                 publishPostApi(z_id, u_id, u_name, title.value, content.value, getCurrentDate()).then(res => {

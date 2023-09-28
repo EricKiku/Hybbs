@@ -60,6 +60,7 @@ import { useRouter } from "vue-router";
 import { createZoneApi, uploadpictureApi } from "../api/zoneAPI"
 import { ElMessageBox } from 'element-plus'
 import { ElMessage } from 'element-plus'
+import { getCurrentDate } from "../tools/date.js"
 const userStore = storeOfUser()
 const router = useRouter()
 // 获取inputdom元素
@@ -111,7 +112,7 @@ function dialogSure() {
     if (userStore.currentUser.u_id) {
         // 点击确认后再发送创建请求
         if (zoneName.value != "") {
-            createZoneApi(zoneName.value, zoneIntroduction.value, lord).then(res => {
+            createZoneApi(zoneName.value, zoneIntroduction.value, lord, getCurrentDate()).then(res => {
                 //  创建成功才上传图片
                 if (res.status == 200) {
                     // 获取到插入的id

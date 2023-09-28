@@ -1,6 +1,7 @@
 <template>
     <div class="lr">
-        <div class="lrMain">
+        <div class="lrMain" v-loading="loadingStatus" element-loading-text="Loading..."
+            element-loading-background="rgba(122, 122, 122, 0.5)">
             <div v-if="submitNickDialog" class="mask"></div>
             <div v-if="submitNickDialog" class="dialog">
                 <div class="tip">
@@ -61,6 +62,7 @@ import { setNickApi } from "../api/userAPI"
 import { useRouter } from "vue-router";
 import { ElMessage } from 'element-plus'
 import { storeOfUser } from "../store/user"
+import { UpdateAttentions } from "../tools/tools"
 let router = useRouter()
 const userStore = storeOfUser();
 // 当前是登录还是注册
@@ -80,9 +82,12 @@ let yzmValid = ref("")
 // 密码
 let password = ref("15097688803")
 
-
+// 加载状态
+let loadingStatus = ref(false)
 // 注册方法
 function regist() {
+    // 进入加载状态
+    loadingStatus.value = true
     // 判断有没有信息没有填写
     if (email.value == "" || yzm.value == "" || password.value == "") {
         ElMessage({
@@ -104,7 +109,7 @@ function regist() {
 
                 }
 
-            })
+            }).finally(() => { loadingStatus.value = false })
 
         } else {
 
@@ -177,6 +182,8 @@ function getYzm() {
 let loginError = ref(false)
 // 登录方法
 function login() {
+    // 进入加载状态
+    loadingStatus.value = true
     if (email.value == "" || password.value == "") {
         ElMessage({
             message: '数据填写不完整',
@@ -204,11 +211,12 @@ function login() {
                 // 把用户数据存储在store中
                 localStorage.setItem("user_id", user.u_id)
                 userStore.setCurrentUser(user)
-
+                // 更新attentionZones
+                UpdateAttentions(true)
                 // userStore.setCurrentUser()
                 setTimeout(() => {
                     goBack()
-                }, 2000);
+                }, 1000);
             } else {
                 ElMessage({
                     message: '服务器错误，请稍后重试',
@@ -216,6 +224,8 @@ function login() {
                 })
             }
 
+        }).finally(() => {
+            loadingStatus.value = false
         })
     }
 }

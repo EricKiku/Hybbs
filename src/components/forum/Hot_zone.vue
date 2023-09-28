@@ -1,21 +1,25 @@
 <template>
     <!-- 热门分区 -->
-    <div class="hot_zone">
+    <div class="hot_zone" v-loading="loadingStatus" element-loading-background="rgba(0, 0, 0, 0.2)">
         <div class="hot_zone_title">
             <img src="../../assets/img/hot.png" alt="">
             <span>热门分区</span>
+            <div style="flex:1;line-height: 25px;text-align: right;">
+                <img @click="refreshZone()" style="vertical-align: middle;cursor: pointer;"
+                    src="../../assets/img/refresh2.png" title="点击刷新">
+            </div>
         </div>
         <div class="zone_list scrollbar">
-            <div @click="toZoneDetails(item['z_id'])" class="zone_item" v-for="(item, index) in zoneStore.allZone"
-                :key="index">
-                <img class="zoneIcon" :src="'src/zoneIcon/' + item['z_id'] + '.jpg'" :title="item['z_name']">
+            <div class="zone_item" v-for="(item, index) in zoneStore.allZone" :key="index">
+                <img @click="ToZoneDetails2(item)" class="zoneIcon" :src="'src/zoneIcon/' + item['z_id'] + '.jpg'"
+                    :title="item['z_name']">
                 <div class="information">
-                    <div class="zone_name">{{ item['z_name'] }}</div>
-                    <div class="zone_number">
+                    <div class="zone_name" :title="item['z_name']">{{ item['z_name'] }}</div>
+                    <div class="zone_number" title="关注">
                         <img src="../../assets/img/followNumber.png">
                         <div>{{ item['z_follows'] }}</div>
                     </div>
-                    <div class="zone_number">
+                    <div class="zone_number" title="帖子">
                         <img src="../../assets/img/posts.png">
                         <div>
                             {{ item['z_posts'] }}
@@ -32,6 +36,7 @@ import { ref, onMounted } from "vue"
 import { getZone } from "../../api/zoneAPI"
 import { storeOfZone } from "../../store/zone"
 import { useRouter } from "vue-router"
+import { ToZoneDetails2 } from "../../tools/tools"
 const zoneStore = storeOfZone()
 const router = useRouter()
 onMounted(() => {
@@ -42,24 +47,27 @@ onMounted(() => {
 
 })
 
+// 加载状态
+let loadingStatus = ref(false)
 // 刷新所有分区
 function refreshZone() {
+    // 进入加载装填
+    loadingStatus.value = true
     getZone().then(res => {
         // 保存所有分区列表
         zoneStore.setAllZone(res.data)
+
+    }).finally(() => {
+        // 关闭加载状态
+        loadingStatus.value = false
     })
 }
 
-// 点击分区跳转到详情页
-function toZoneDetails(z_id) {
-    // 先把store中的当前帖子设置好再跳转
-    let res = zoneStore.setZoneById(z_id)
-    if (res) {
-        router.push({
-            name: "/zoneDetails"
-        })
-    }
 
+
+// 测试方法
+function test(zone) {
+    console.log(zone);
 }
 </script>
 
@@ -67,9 +75,11 @@ function toZoneDetails(z_id) {
 .hot_zone {
     width: calc(100% - 10px);
     height: 200px;
-    border: 1px solid #e3e3e3;
+    border-radius: 5px;
     padding-top: 10px;
     padding-left: 10px;
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
 
     .hot_zone_title {
         height: 25px;
@@ -125,17 +135,21 @@ function toZoneDetails(z_id) {
             height: 72px;
             margin: 5px;
             display: flex;
-            cursor: pointer;
+            transition: all 0.3s;
 
             &:hover {
-                outline: 1px solid #ccc;
+                // outline: 1px solid #545454;
                 border-radius: 5px;
+                box-shadow:
+                    0px 0px 10px rgba(0, 0, 0, 0.06),
+                    0px 0px 80px rgba(0, 0, 0, 0.12);
             }
 
             >img {
                 border-radius: 5px;
                 height: 72px;
                 width: 72px;
+                cursor: pointer;
             }
 
             .information {
@@ -145,6 +159,7 @@ function toZoneDetails(z_id) {
                 .zone_name {
                     height: 23px;
                     width: 70px;
+                    cursor: default;
                     /* 强制不换行 */
                     white-space: nowrap;
                     /* 文字用省略号代替超出的部分 */
@@ -157,13 +172,18 @@ function toZoneDetails(z_id) {
                 .zone_number {
                     height: 23px;
                     line-height: 23px;
-                    color: #bfbfbf;
-                    cursor: pointer;
+                    color: #555555;
+                    cursor: default;
                     // 开启flex
                     display: flex;
+                    vertical-align: middle;
 
                     img {
-                        margin-top: 1px;
+                        margin-top: 3px;
+                        height: 16px;
+                        width: 16px;
+                        vertical-align: middle;
+                        padding-right: 5px;
                     }
                 }
             }

@@ -56,6 +56,7 @@ function toUserInfo() {
     // 开启flex
     display: flex;
     padding: 10px;
+    background-color: rgba(255, 255, 255, .8);
 
     .avatar {
         height: 85px;

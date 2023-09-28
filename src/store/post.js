@@ -8,8 +8,12 @@ export const storeOfPost = defineStore("post", {
     },
     actions: {
         // 设置hot_posts
-        setHotPosts(array) {
+        setPosts(array) {
             this.hot_posts = array
+        },
+        // 获取所有post
+        getAllPosts() {
+            return this.hot_posts
         }
     }
 })

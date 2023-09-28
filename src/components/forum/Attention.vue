@@ -1,17 +1,20 @@
 <template>
     <!-- 关注的分区 -->
     <div class="attention_subzone">
-        <div class="title">
-            <img src="../../assets/img/follow.png">
-            <span>关注的分区</span>
-            <img @click="refreshAttZone()" title="刷新" class="refresh" src="../../assets/img/Refresh.png" alt="">
-        </div>
-        <div class="list_subzone scrollbar">
-            <div class="list_item" v-for="(item, index) in userStore.attentionZones" :key="item['z_id']">
-                <div><span @click="toZoneDetails(item['z_id'])" :title="item['z_name']">{{ item['z_name'] }}</span>
+        <div class="outside">
+            <div class="title">
+                <img src="../../assets/img/follow.png">
+                <span>关注的分区</span>
+                <img @click="refreshAttZone()" title="刷新" class="refresh" src="../../assets/img/Refresh.png" alt="">
+            </div>
+            <div class="list_subzone scrollbar" v-loading="loadingStatus" element-loading-background="rgba(0, 0, 0, 0.2)">
+                <div class="list_item" v-for="(item, index) in userStore.attentionZones" :key="item['z_id']">
+                    <div><span @click="toZoneDetails(item['z_id'])" :title="item['z_name']">{{ item['z_name'] }}</span>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 </template>
 
@@ -19,17 +22,22 @@
 import { ref, onMounted, reactive } from "vue"
 import { storeOfUser } from "../../store/user"
 import { getZone } from "../../api/zoneAPI"
-import { TtoZoneDetails } from "../../tools/tools"
+import { TtoZoneDetails, UpdateAttentions } from "../../tools/tools"
 import { storeOfZone } from "../../store/zone"
 import { useRouter } from "vue-router"
+import { storeOfStatus } from "../../store/status"
 const userStore = storeOfUser()
 const zoneStore = storeOfZone()
 const router = useRouter()
+const statusStore = storeOfStatus()
 onMounted(() => {
     getAttentionZone()
 })
+// 加载状态
+let loadingStatus = ref(false)
 // 刷新关注分区栏
 function refreshAttZone() {
+
     // 先把store中的关注分区栏设为空数组
     userStore.setAttentionZones([])
     // 在发送请求
@@ -37,28 +45,21 @@ function refreshAttZone() {
 }
 // 获取关注分区栏请求方法
 function getAttentionZone() {
-    let attentionStr = userStore.currentUser.u_att_zone
-    let attentionArray = attentionStr.split(",")
-    getZone().then(res => {
-        if (res.status == 200) {
-            // 外层遍历所有分组
-            let tempArr = <any>[]
-            for (let j = 0; j < attentionArray.length; j++) {
-                for (let i = 0; i < res.data.length; i++) {
-                    // 内层遍历所有关注字符串
-                    if (attentionArray[j] == res.data[i]["z_id"]) {
-                        // 获得关注的分区信息，追加到result中
-                        tempArr.push(res.data[i])
-                    }
-                }
-            }
-            // 把tempArr给result，如果store中有则不赋予，把store中的赋予，让用户手动刷新
-            if (!userStore.attentionZones.length) {
-                userStore.setAttentionZones(tempArr)
-            }
+    // 进入加载状态
+    console.log('loading...');
 
+    loadingStatus.value = true;
+    // 使用关注分区字符串更新关注分区列表
+    UpdateAttentions()
+    // 监听statusStore
+    let timer = setInterval(() => {
+        if (statusStore.getLoadingSuccess()) {
+            // 关闭加载状态，把store值设为false，关闭计时器
+            loadingStatus.value = false
+            statusStore.setLoadingSuccess(false)
+            clearInterval(timer)
         }
-    })
+    }, 100);
 }
 // 点击分区跳转到详情页
 function toZoneDetails(z_id) {
@@ -76,6 +77,7 @@ function toZoneDetails(z_id) {
 .attention_subzone {
     height: 230px;
     padding: 10px;
+    background-color: rgba(255, 255, 255, .8);
 
 
     .title {
@@ -94,14 +96,19 @@ function toZoneDetails(z_id) {
         }
     }
 
+    .outside {
+        box-shadow:
+            0px 0px 10px rgba(0, 0, 0, 0.06),
+            0px 0px 20px rgba(0, 0, 0, 0.12);
+        border-radius: 10px;
+    }
+
     .list_subzone {
         height: 200px;
         width: 100%;
         overflow: auto;
         background-color: #FBF7EA;
-        box-shadow:
-            0px 0px 10px rgba(0, 0, 0, 0.03),
-            0px 0px 80px rgba(0, 0, 0, 0.06);
+
         border-bottom-left-radius: 10px;
         border-bottom-right-radius: 10px;
 

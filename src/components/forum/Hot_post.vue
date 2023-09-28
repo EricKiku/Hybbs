@@ -1,5 +1,12 @@
 <template>
-    <div class="hot_post scrollbar">
+    <div class="hot_post scrollbar" v-loading="loadingStatus" element-loading-background="rgba(0, 0, 0, 0.2)">
+        <div class="refresh">
+            <img @click="refreshPost()" src="../../assets/img/refresh2.png" title="刷新">
+        </div>
+        <div class="hot_title">
+            <img style="vertical-align: middle;" src="../../assets/img/dot.png" alt="">
+            热门帖
+        </div>
         <div class="post_item" v-for="(item, index) in postStore.hot_posts" :key="index">
             <div class="post_item_zone">
                 <img src="../../assets/img/zone.png">
@@ -7,15 +14,16 @@
             </div>
             <div class="post_item_title">
                 <div>
-                    <span @click="toPostDetails(item['z_id'], item)">{{ item['p_title'] }}</span>
-                    <span class="post_item_comment">
-                        {{ 0 }}
+                    <span @click="ToPostDetails(item['z_id'], item)" :title="'帖子标题:' + item['p_title']">{{ item['p_title']
+                    }}</span>
+                    <span class="post_item_comment" :title="'帖子回复数:' + item['p_reply']">
+                        [{{ item['p_reply'] }}]
                     </span>
                 </div>
 
             </div>
 
-            <div class="post_item_content">
+            <div class="post_item_content" :title="'内容:' + item['p_content']">
                 {{ item['p_content'] }}
             </div>
             <div style="display: flex;margin-top: 10px;">
@@ -23,7 +31,7 @@
                     <div style="height: 16px;">
                         <img src="../../assets/img/user.png" alt="">
                     </div>
-                    <div><span class="post_user">{{ item['u_name'] }}</span></div>
+                    <div><span @click="goToOtherUser(item['u_id'])" class="post_user">{{ item['u_name'] }}</span></div>
                 </div>
                 <div class="post_item_date post_item_info">
                     <div style="height: 16px;">
@@ -43,19 +51,31 @@ import { ref, onMounted } from "vue"
 import { getPost } from "../../api/postAPI"
 import { storeOfPost } from "../../store/post"
 import { storeOfZone } from "../../store/zone"
+import { ToPostDetails, goToOtherUser } from "../../tools/tools"
 import { useRouter } from "vue-router"
 
 const postStore = storeOfPost()
 const zoneStore = storeOfZone()
 const router = useRouter()
+// 加载状态
+let loadingStatus = ref(false);
 // hot post >>
 let hot_posts = ref([])
 onMounted(() => {
-    getPost().then(res => {
-        // 把数据存到store中
-        postStore.setHotPosts(res.data.reverse())
-    })
+    refreshPost()
 })
+// 刷新帖子方法
+function refreshPost() {
+    // 加载状态
+    loadingStatus.value = true
+    getPost().then(res => {
+        // 把数据存到store中，是所有帖子
+        postStore.setPosts(res.data.reverse())
+
+    }).finally(() => {
+        loadingStatus.value = false
+    })
+}
 
 // 点击分区名字跳转到分区
 function toZoneDetail(z_id) {
@@ -93,9 +113,31 @@ function toPostDetails(z_id, obj) {
     margin-top: 20px;
     border: 1px solid #ccc;
     overflow: auto;
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.7);
+
+    .refresh {
+        height: 20px;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+
+        img {
+            cursor: pointer;
+        }
+    }
+
+    .hot_title {
+        padding: 10px;
+        font-size: 18px;
+        vertical-align: middle;
+        border-bottom: 1px dotted #ccc;
+    }
 
     .post_item {
         padding: 10px;
+        border-bottom: 0.5px dotted #ccc;
+        border-width: 50%;
 
         .post_item_zone {
 
@@ -144,14 +186,16 @@ function toPostDetails(z_id, obj) {
         }
 
         .post_item_comment {
-            color: red;
-            font-size: 14px;
+            color: rgb(189, 48, 48);
+            font-size: 12px;
+            cursor: default !important;
         }
 
         .post_item_content {
             line-height: 20px;
             color: rgb(42, 42, 42);
             font-size: 14px;
+            cursor: default;
         }
 
         .post_item_info {

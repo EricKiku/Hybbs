@@ -6,7 +6,7 @@
         <div v-show="replyComponentVisualDelay">
             <div class="reply_title">
                 <span v-if="replyLocal == 'post'">回复到帖子(追加到最后一楼)</span>
-                <span v-if="replyLocal == 'floor'">回复给:EricKiku</span>
+                <span v-if="replyLocal == 'floor'">回复给:{{ replyName }}</span>
             </div>
             <textarea placeholder="在此书写回复内容" v-model="replyContent"></textarea>
             <div>
@@ -20,7 +20,7 @@
         <!-- 第一楼是楼主内容 -->
         <div class="floorItem">
             <div class="user">
-                <img src="../../assets/img/avatar.png" alt="">
+                <img @click="goToOtherUser(post['p_lz'])" src="../../assets/img/avatar.png" alt="">
                 <div class="nick" :title="post['u_name']">{{ post['u_name'] }}</div>
             </div>
             <div class="content">
@@ -30,9 +30,9 @@
                         [{{ 1 }}楼]
                     </div>
                     <div class="date">
-                        {{ '2023/9/4 19:57:25' }}
+                        {{ post['p_date'] }}
                     </div>
-                    <div class="reply_floor" @click.stop="openReply('text', 'floor')">
+                    <div class="reply_floor" @click.stop="openReply('text', 'post', '', 0)">
                         回复
                     </div>
                 </div>
@@ -41,19 +41,26 @@
         </div>
         <div class="floorItem" v-for="(item, index) in replys" :key="index">
             <div class="user">
-                <img src="../../assets/img/avatar.png" alt="">
+                <img @click="goToOtherUser(item['u_id'])" src="../../assets/img/avatar.png" alt="">
                 <div class="nick" :title="item.u_nick">{{ item.u_nick }}</div>
             </div>
             <div class="content">
                 <div class="content_main">{{ item.r_content }}</div>
                 <div class="foot">
+                    <div v-if="item['lowerReply'].length > 0" class="replyToReply scrollbar">
+                        <div class="replyToReply_item" v-for="(reply) in item['lowerReply']" :key="reply['r_id']">
+                            [<span style="cursor: pointer;" @click="goToOtherUser(reply['u_id'])">{{ reply['u_nick']
+                            }}</span>]:<span>{{
+    reply['r_content'] }}</span>
+                        </div>
+                    </div>
                     <div class="floorNum">
                         [{{ index + 2 }}楼]
                     </div>
                     <div class="date">
                         {{ item.r_date }}
                     </div>
-                    <div class="reply_floor" @click.stop="openReply('text', 'floor')">
+                    <div class="reply_floor" @click.stop="openReply('text', 'floor', item.u_nick, item.r_id)">
                         回复
                     </div>
                 </div>
@@ -73,11 +80,11 @@
         <div class="createPost" :class="{ openExtend: extendOpen }">
             <img @click.stop="shiftExtend()" src="../../assets/img/reply.png" title="回复到楼底">
             <div class="extend" v-if="extendOpen">
-                <div class="extend_item" @click.stop="openReply('text', 'post')">
+                <div class="extend_item" @click.stop="openReply('text', 'post', '', 0)">
                     <img src="../../assets/img/selectText.png" alt=""><br>
                     <span>文字</span>
                 </div>
-                <div class="extend_item" @click.stop="openReply('picture', 'post')">
+                <div class="extend_item" @click.stop="openReply('picture', 'post', '', 0)">
                     <img src="../../assets/img/selectpicture.png" alt=""><br>
                     <span>图文</span>
                 </div>
@@ -101,10 +108,12 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from "vue"
-import { publishReplyApi } from "../../api/replyAPI"
+import { publishReplyApi, publishReplyToReplyApi } from "../../api/replyAPI"
+import { updateLastReplyMsgApi } from "../../api/postAPI";
 import { storeOfZone } from "../../store/zone"
 import { storeOfUser } from "../../store/user"
 import { getCurrentDate } from "../../tools/date"
+import { replyHandle, goToOtherUser } from "../../tools/tools"
 import { getReplyByPIdApi } from "../../api/replyAPI"
 import { ElMessage } from 'element-plus'
 const zoneStore = storeOfZone()
@@ -143,15 +152,21 @@ let replyComponentVisual = ref(false)
 let replyComponentVisualDelay = ref(false)
 // 回复位置
 let replyLocal = ref('')
+// 回复对象的名字
+let replyName = ref("")
 // 打开回复面板
-function openReply(type, local) {
+function openReply(type, local, name, id) {
     if (type == 'text') {
         // 如果是 post则 追加到帖子最后回复
         if (local == 'post') {
             replyLocal.value = 'post'
         } else if (local == 'floor') {
             replyLocal.value = 'floor'
+            // 设置回复对象的名字
+            replyName.value = name
         }
+        // 如果有id，则设置，没有则设为false
+        r_id.value = id
 
         replyComponentVisual.value = true
         // 延时之后再显示控件
@@ -168,6 +183,8 @@ function openReply(type, local) {
 let replyContent = ref("")
 // 确认回复对话框是否显示
 let publishReplyDia = ref(false)
+// 是否有回复对象，对象为r_id，值可能是：0 或 某个r_id
+let r_id = ref()
 // 打开回复对话框方法
 function openReplyDia() {
     publishReplyDia.value = true
@@ -182,13 +199,18 @@ function publishReply() {
     let content = replyContent.value
     // 时间
     let date = getCurrentDate()
+
     // 是否回复给其他的回复
-    publishReplyApi(u_id, p_id, content, date).then(res => {
+    publishReplyApi(u_id, p_id, content, date, r_id.value).then(res => {
         if (res.status == 200) {
             publishReplyDia.value = false
             ElMessage({
                 message: '回复成功',
                 type: 'success',
+            })
+            // 调用API，更新帖子的最后回复人u_name和lastreplydate两个字段
+            updateLastReplyMsgApi(p_id, u_id, userStore.get('u_nick'), getCurrentDate()).then(res => {
+                console.log(res)
             })
             // 刷新回复
             getReply()
@@ -204,6 +226,7 @@ function publishReply() {
         }
     })
 
+
 }
 
 //  所有回复
@@ -211,7 +234,13 @@ let replys = ref()
 // 获取回复方法
 function getReply() {
     getReplyByPIdApi(props.post.p_id).then(res => {
-        replys.value = res.data
+
+        if (res.status == 200) {
+            // replys.value = res.data
+            replys.value = replyHandle(res.data)
+        }
+        // 使用工具函数处理一下回复
+
     })
 }
 onMounted(() => {
@@ -269,7 +298,7 @@ onMounted(() => {
     }
 
     .floorItem {
-        min-height: 120px;
+        // min-height: 120px;
         width: 100%;
         border-bottom: 1px dotted #c8c8c8;
         display: flex;
@@ -321,11 +350,24 @@ onMounted(() => {
         }
 
         .foot {
-            height: 20px;
+            // height: 20px;
             display: flex;
             justify-content: right;
             font-size: 12px;
             letter-spacing: 1px;
+
+            .replyToReply {
+                flex: 1;
+                min-height: 0px;
+                max-height: 150px;
+                padding: 10px;
+                padding-left: 30px;
+                background-color: #eaeaea;
+                margin-right: 20px;
+                border-radius: 5px;
+                overflow: auto;
+                margin-bottom: 10px;
+            }
 
             .floorNum {
                 color: #999;
