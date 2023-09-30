@@ -7,6 +7,14 @@
             <el-transfer :titles="['关注分区', '取消关注']" v-model="cacelAttentions" :data="data" />
             <el-button type="primary" @click="submit()">确定</el-button>
         </div>
+        <!-- 等级描述窗口 -->
+        <div class="lv_introduct" v-show="LvIntroductVisual">
+            <div class="close" @click="switchLvIntroductViual(false)"></div>
+            <div class="line" style="margin-top: 20px;">用户回复帖子经验 <span>+1</span> </div>
+            <div class="line">用户发布帖子经验 <span>+1</span> </div>
+            <div class="line">用户每日签到经验 <span>+10</span> </div>
+            <div class="line">升级所需经验= <span>用户等级 × 100</span> </div>
+        </div>
         <div class="main scrollbar" v-loading="loadingStatus" element-loading-background="rgba(0, 0, 0, 0.2)">
             <div class="top"></div>
             <div class="one">
@@ -25,7 +33,18 @@
                 </div>
                 <div class="one_3" v-if="userOfMe">
                     <div class="lv">
-                        <span title="用户等级">等级 Lv</span>：<span><i>{{ userOfMe['u_lv'] }}</i></span>
+                        <img class="position" @click="switchLvIntroductViual(true)"
+                            style="vertical-align: middle;cursor: pointer;" src="../assets/img/info.png" alt="">
+                        <div class="lv_span position">
+                            <span>等级Lv</span>
+                        </div>
+                        <div class="lv_num position">
+                            <i>{{ userOfMe['u_lv'] }}</i>
+                        </div>
+                        <div class="exp_bar position" :title="userStore.get('u_exp') + '/' + userStore.get('u_lv') * 100">
+                            <div class="bar"
+                                :style="{ width: (userStore.get('u_exp') / (userStore.get('u_lv') * 100)) * 100 + '%' }"></div>
+                        </div>
                     </div>
                     <div class="fensi">
                         <img src="../assets/img/fensi.png" title="粉丝">：
@@ -141,6 +160,15 @@ function editNick() {
     }
 
 }
+
+// 等级描述显示
+let LvIntroductVisual = ref(false)
+
+// 切换显示与不显示
+function switchLvIntroductViual(bool) {
+    LvIntroductVisual.value = bool
+}
+
 
 // >> 管理分区
 interface Option {
@@ -273,6 +301,45 @@ function message(type, content) {
         }
     }
 
+    .lv_introduct {
+        background-color: white;
+        border-radius: 5px;
+        padding: 5px;
+        padding-right: 30px;
+        padding-left: 30px;
+        position: absolute;
+        left: 50%;
+        top: 35%;
+        transform: translateX(-50%) translateY(-50%);
+        z-index: 3;
+        box-shadow:
+            4px 4px 10px rgba(0, 0, 0, 0.085),
+            32px 32px 80px rgba(0, 0, 0, 0.17);
+
+        .close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: red;
+            cursor: pointer;
+        }
+
+        .line {
+            margin-bottom: 10px;
+
+            >span {
+                color: rgb(0, 193, 0);
+            }
+        }
+
+        .line:first-child {
+            margin-top: 10px;
+        }
+    }
+
     .main {
         width: 70%;
         height: 95%;
@@ -361,34 +428,74 @@ function message(type, content) {
                 flex: 1;
                 padding-left: 20px;
                 padding-right: 20px;
-                line-height: 60px;
+                // line-height: 60px;
                 display: flex;
                 justify-content: space-around;
 
                 .lv {
                     user-select: none;
+                    display: flex;
+                    height: 60px;
 
-                    span:first-child {
-                        padding: 2px;
-                        background-color: #5865f5;
-                        color: white;
-                        font-size: 13px;
-                        cursor: default;
-                        border-radius: 5px;
+                    >img {
+                        height: 19px;
+                        width: 19px;
                     }
 
-                    span:last-child {
-                        height: 18px;
+                    .position {
+                        position: relative;
+                        top: 50%;
+                        transform: translateY(-50%);
+                    }
+
+                    .lv_span {
+                        // border: 1px solid #5865F2;
+                        height: 20px;
+                        background-color: #5865F2;
+                        color: white;
+                        padding: 5px;
+                        border-radius: 5px;
+                        border-top-right-radius: 0px;
+                        border-bottom-right-radius: 0px;
+                        line-height: 20px;
+                        font-size: 14px;
+                    }
+
+                    .lv_num {
+                        height: 20px;
+                        line-height: 20px;
                         background-color: white;
-                        border: 1px solid #5865f5;
+                        // border: 1px solid #5865f5;
+                        padding: 5px;
                         padding-left: 10px;
                         padding-right: 10px;
                         border-radius: 5px;
+                        border-top-left-radius: 0px;
+                        border-bottom-left-radius: 0px;
+                    }
+
+                    .exp_bar {
+                        width: 100px;
+                        height: 10px;
+                        border: 1px solid #5865f5;
+                        // display: inline;
+                        margin-left: 10px;
+                        border-radius: 10px;
+                        overflow: hidden;
+
+                        .bar {
+                            background-color: rgb(74, 174, 74);
+                            // width: 50%;
+                            height: 100%;
+                            border-top-right-radius: 10px;
+                            border-bottom-right-radius: 10px;
+                        }
                     }
                 }
 
                 .fensi {
                     user-select: none;
+                    line-height: 60px;
 
                     img {
                         vertical-align: middle;

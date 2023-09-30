@@ -1,6 +1,7 @@
 import { storeOfUser } from "../store/user"
 import { storeOfZone } from "../store/zone"
 import { getZone } from "../api/zoneAPI"
+import { addExpApi, getUserByUId } from "../api/userAPI"
 import { storeOfStatus } from "../store/status"
 import router from "../router/router"
 const userStore = storeOfUser()
@@ -127,6 +128,22 @@ export const goToOtherUser = (uId) => {
         name: "/otherUser",
         query: {
             uId: uId
+        }
+    })
+}
+
+
+// 加经验
+export const addExpTool = (u_id, value, callback) => {
+    addExpApi(u_id, value).then(res => {
+        if (res.status == 200) {
+            callback(1, "经验 + " + value)
+            // 获取一下用户信息
+            getUserByUId(u_id).then(res => {
+                if (res.status == 200) {
+                    userStore.setCurrentUser(res.data)
+                }
+            })
         }
     })
 }

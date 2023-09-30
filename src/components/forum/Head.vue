@@ -1,6 +1,11 @@
 <template>
     <div class="head">
-        <div style="width: 300px;border-top-left-radius: 10px;"></div>
+        <div style="width: 300px;border-top-left-radius: 10px;line-height: 35px;">
+            <button @click="signin()"
+                :class="{ signin: !userStore.isAlreadySignin, alreadySignin: userStore.isAlreadySignin }">{{
+                    userStore.isAlreadySignin ? "已签到" : "签到" }}</button>
+            已签到 <span>{{ signincount }}</span> 天
+        </div>
         <div class="search" :class="{ search_focus: acquire, search_unfocus: !acquire }">
             <input @keyup.enter="search()" @click="search_box_focus_event('acquire')" @blur="search_box_focus_event('lose')"
                 type="text" v-model="searchContent" placeholder="搜索：分区、帖子、用户">
@@ -117,15 +122,17 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue"
+import { ref, onMounted } from "vue"
 import { ArrowDown } from '@element-plus/icons-vue'
 import { Search, Link } from '@element-plus/icons-vue'
 import { useRouter } from "vue-router";
 import { storeOfUser } from "../../store/user"
 import { createZoneApi } from "../../api/zoneAPI"
 import { searchApi } from "../../api/searchAPI"
+import { signinApi } from "../../api/userAPI"
 import { ElMessage } from 'element-plus'
-import { ToZoneDetails2, ToPostDetails, goToOtherUser } from "../../tools/tools"
+import { getCurrentDate } from "../../tools/date"
+import { ToZoneDetails2, ToPostDetails, goToOtherUser, addExpTool } from "../../tools/tools"
 const router = useRouter();
 const userStore = storeOfUser()
 // head >>
@@ -135,7 +142,40 @@ let acquire = ref(false)
 function search_box_focus_event(status) {
     acquire.value = status == 'acquire'
 }
+// 是否签到
+let isAlreadySignin = ref(false)
+// 签到天数
+let signincount = ref(0)
+function signin() {
+    if (isAlreadySignin.value) {
+        return
+    }
+    let u_id = userStore.get("u_id")
+    let date = getCurrentDate()
+    signinApi(u_id, date).then(res => {
+        if (res.status == 200) {
+            // 更新userStore中的签到
+            addExpTool(u_id, 10, message)
+            isAlreadySignin.value = true
+            signincount.value += 1
+        }
+    })
 
+}
+
+onMounted(() => {
+    signincount.value = userStore.get("u_signin_count")
+    console.log("签到：", userStore.get("u_signin_date").substring(0, 10));
+    console.log('今天：', getCurrentDate().substring(0, 10));
+    if (userStore.get("u_signin_date")) {
+        console.log("是否相等：", userStore.get("u_signin_date").substring(0, 10) + "" == getCurrentDate().substring(0, 10));
+
+        if (userStore.get("u_signin_date").substring(0, 10) + "" == getCurrentDate().substring(0, 10)) {
+            isAlreadySignin.value = true
+        }
+    }
+
+})
 // 按钮点击事件
 function router_login() {
     router.push({
@@ -243,6 +283,38 @@ function message(type, content) {
     // 渐变背景样式
     background: @HeadLinear;
     background: @HeadLinear2;
+
+    .signin {
+        margin-left: 10px;
+        height: 35px;
+        width: 100px;
+        border: none;
+        border: 3px solid #5865F2;
+        color: #5865F2;
+        font-size: 18px;
+        letter-spacing: 5px;
+        border-radius: 17px;
+        cursor: pointer;
+        font-weight: bold;
+
+        &:hover {
+            background-color: #5865F2;
+            color: white;
+        }
+    }
+
+    .alreadySignin {
+        margin-left: 10px;
+        height: 35px;
+        width: 100px;
+        border: none;
+        border: 3px solid #ccc;
+        color: #ccc;
+        font-size: 18px;
+        letter-spacing: 5px;
+        border-radius: 17px;
+        font-weight: bold;
+    }
 
     // 搜索边框获取焦点样式
     .search_focus {

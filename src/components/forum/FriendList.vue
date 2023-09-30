@@ -26,7 +26,7 @@
                             {{ friend['u_nick'] }}
                         </div>
                         <div class="status">
-                            <img src="../../assets/img/online.png"><span>在线</span>
+                            <!-- <img src="../../assets/img/online.png"><span>在线</span> -->
                             <!-- <img src="../../assets/img/noonline.png"><span>离线</span> -->
                         </div>
 

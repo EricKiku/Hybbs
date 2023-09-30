@@ -8,7 +8,8 @@
                 <span v-if="replyLocal == 'post'">回复到帖子(追加到最后一楼)</span>
                 <span v-if="replyLocal == 'floor'">回复给:{{ replyName }}</span>
             </div>
-            <textarea placeholder="在此书写回复内容" v-model="replyContent"></textarea>
+            <textarea @keyup.enter="openReplyDia()" placeholder="在此书写回复内容,点击回复按或按下键盘回车键发送消息"
+                v-model="replyContent"></textarea>
             <div>
                 <button @click="openReplyDia()">回复</button>
             </div>
@@ -110,9 +111,11 @@
 import { ref, onMounted } from "vue"
 import { publishReplyApi, publishReplyToReplyApi } from "../../api/replyAPI"
 import { updateLastReplyMsgApi } from "../../api/postAPI";
+import { addExpApi, getUserByUId } from "../../api/userAPI"
 import { storeOfZone } from "../../store/zone"
 import { storeOfUser } from "../../store/user"
 import { getCurrentDate } from "../../tools/date"
+import { addExpTool } from "../../tools/tools"
 import { replyHandle, goToOtherUser } from "../../tools/tools"
 import { getReplyByPIdApi } from "../../api/replyAPI"
 import { ElMessage } from 'element-plus'
@@ -123,6 +126,12 @@ const emit = defineEmits(['back'])
 // 接收参数
 const props = defineProps(['post'])
 
+// 测试
+function addExp() {
+    let u_id = userStore.get("u_id")
+    let value = 1
+    addExpTool(u_id, value, message)
+}
 
 // 返回
 function emitBack() {
@@ -204,10 +213,8 @@ function publishReply() {
     publishReplyApi(u_id, p_id, content, date, r_id.value).then(res => {
         if (res.status == 200) {
             publishReplyDia.value = false
-            ElMessage({
-                message: '回复成功',
-                type: 'success',
-            })
+            message(1, "回复成功")
+            addExp()
             // 调用API，更新帖子的最后回复人u_name和lastreplydate两个字段
             updateLastReplyMsgApi(p_id, u_id, userStore.get('u_nick'), getCurrentDate()).then(res => {
                 console.log(res)
@@ -253,6 +260,15 @@ onMounted(() => {
         }, 500);
     }
 })
+
+
+// 消息提示方法
+function message(type, content) {
+    ElMessage({
+        message: content,
+        type: type == 1 ? 'success' : 'warning',
+    })
+}
 </script>
 
 <style lang="less" scoped>

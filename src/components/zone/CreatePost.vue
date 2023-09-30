@@ -30,7 +30,7 @@ import { storeOfZone } from "../../store/zone"
 import { storeOfUser } from "../../store/user"
 import { publishPostApi } from "../../api/postAPI"
 import { getCurrentDate } from "../../tools/date"
-import { isLogin } from "../../tools/tools"
+import { isLogin, addExpTool } from "../../tools/tools"
 import { ElMessage } from 'element-plus'
 const zoneStore = storeOfZone()
 const userStore = storeOfUser()
@@ -66,16 +66,11 @@ function publish() {
                 let u_name = userStore.currentUser['u_nick']
                 publishPostApi(z_id, u_id, u_name, title.value, content.value, getCurrentDate()).then(res => {
                     if (res.status == 200) {
-                        ElMessage({
-                            message: '发表成功',
-                            type: 'success',
-                        })
+                        message(1, "发布成功")
+                        addExpTool(u_id, 1, message)
                         emit("submit")
                     } else {
-                        ElMessage({
-                            message: '发表失败.',
-                            type: 'warning',
-                        })
+                        message(1, "发布失败")
                     }
                 })
             }
@@ -85,6 +80,15 @@ function publish() {
     } else {
         console.log('未登录');
     }
+}
+
+
+// 消息提示方法
+function message(type, content) {
+    ElMessage({
+        message: content,
+        type: type == 1 ? 'success' : 'warning',
+    })
 }
 </script>
 

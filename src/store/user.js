@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { setAttentionZone } from "../api/userAPI"
 import { updateZoneFollowApi } from "../api/zoneAPI"
+import { getCurrentDate } from "../tools/date"
 export const storeOfUser = defineStore("user", {
     state: () => {
         return {
@@ -12,14 +13,19 @@ export const storeOfUser = defineStore("user", {
                 u_lv: 0,
                 u_att_zone: "",
                 u_fensi: 0,
-                u_attention: ""
+                u_attention: "",
+                u_signin_count: 0,
+                u_signin_date: "",
+                u_exp: 0
             },
+            isAlreadySignin: false,
             attentionZones: []
         }
     },
     actions: {
         setCurrentUser(user) {
             console.log("loginByID：", user);
+            this.setSignIN(false)
             this.currentUser.u_id = user.u_id;
             this.currentUser.u_email = user.u_email;
             this.currentUser.u_password = user.u_password;
@@ -28,7 +34,17 @@ export const storeOfUser = defineStore("user", {
             this.currentUser.u_att_zone = user.u_att_zone;
             this.currentUser.u_fensi = user.u_fensi;
             this.currentUser.u_attention = user.u_attention;
+            this.currentUser.u_signin_count = user.u_signin_count;
+            this.currentUser.u_signin_date = user.u_signin_date
+            if (user.u_signin_date.substring(0, 10) + "" == getCurrentDate().substring(0, 10)) {
+                this.setSignIN(true)
+            }
+            this.currentUser.u_exp = user.u_exp
             console.log('currentUser:', this.currentUser);
+        },
+        // 设置签到
+        setSignIN(bool) {
+            this.isAlreadySignin = bool
         },
         // 获取其中某个属性
         get(type) {

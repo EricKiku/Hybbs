@@ -93,3 +93,28 @@ export const getFriendListApi = (attStr) => {
         }
     })
 }
+
+
+// 签到
+export const signinApi = (u_id, date) => {
+    return request({
+        url: "/user/signin",
+        method: "POST",
+        data: {
+            u_id,
+            date
+        }
+    })
+}
+
+
+// 经验增加
+export const addExpApi = (u_id, value) => {
+    return request({
+        url: "/user/addExp",
+        method: "POST",
+        data: {
+            u_id, value
+        }
+    })
+}
