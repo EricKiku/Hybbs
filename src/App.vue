@@ -2,14 +2,14 @@
   <FormTitleBar />
   <!-- 聊天窗口 -->
   <ChatWindow v-if="chatStore.getChatStatus()"></ChatWindow>
-  <template style="display: flex;height: calc(100% - 30px);background-color: #EBE1B7;">
+  <template style="display: flex;height: calc(100% - 30px);background-color: white;">
     <!-- <div v-if="false" class="mask">
     </div> -->
     <Sidebar />
     <!-- 主界面展示路由 -->
-    <keep-alive>
-      <router-view></router-view>
-    </keep-alive>
+
+    <router-view></router-view>
+
   </template>
 </template>
 

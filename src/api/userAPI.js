@@ -118,3 +118,12 @@ export const addExpApi = (u_id, value) => {
         }
     })
 }
+
+// 修改头像
+export const setAvatar = (formData) => {
+    return request({
+        url: "/user/setAvatar",
+        method: "POST",
+        data: formData
+    })
+}

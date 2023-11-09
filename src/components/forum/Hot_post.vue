@@ -1,67 +1,42 @@
 <template>
-    <div class="hot_post scrollbar" v-loading="loadingStatus" element-loading-background="rgba(0, 0, 0, 0.2)">
-        <div class="refresh">
-            <img @click="refreshPost()" src="../../assets/img/refresh2.png" title="刷新">
-        </div>
-        <div class="hot_title">
-            <img style="vertical-align: middle;" src="../../assets/img/dot.png" alt="">
-            热门帖
-        </div>
-        <div class="post_item" v-for="(item, index) in postStore.hot_posts" :key="index">
-            <div class="post_item_zone">
-                <img src="../../assets/img/zone.png">
-                <span :title="'分区:' + item['z_name']" @click="toZoneDetail(item['z_id'])">{{ item['z_name'] }}</span>
-            </div>
-            <div class="post_item_title">
-                <div>
-                    <span @click="ToPostDetails(item['z_id'], item)" :title="'帖子标题:' + item['p_title']">{{ item['p_title']
-                    }}</span>
-                    <span class="post_item_comment" :title="'帖子回复数:' + item['p_reply']">
-                        [{{ item['p_reply'] }}]
-                    </span>
-                </div>
-
-            </div>
-
-            <div class="post_item_content" :title="'内容:' + item['p_content']">
-                {{ item['p_content'] }}
-            </div>
-            <div style="display: flex;margin-top: 10px;">
-                <div class="post_item_user post_item_info">
-                    <div style="height: 16px;">
-                        <img src="../../assets/img/user.png" alt="">
-                    </div>
-                    <div><span @click="goToOtherUser(item['u_id'])" class="post_user">{{ item['u_name'] }}</span></div>
-                </div>
-                <div class="post_item_date post_item_info">
-                    <div style="height: 16px;">
-                        <img src="../../assets/img/date.png" alt="">
-                    </div>
-                    <span>{{ item['p_date'] }}</span>
-                </div>
-            </div>
-
-        </div>
-
+    <div ref="scrollBarDom" class="posts scrollbar" @scroll="setScrollbar">
+        <PushPost></PushPost>
+        <Post v-for="(post) in posts.slice((currentPage - 1) * count, currentPage * count)" :key="post['p_id']"
+            :post="post">
+        </Post>
+        <Paging :total="total" :count="count" @changePage="changeCurrentPage"></Paging>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted, onActivated, onDeactivated, nextTick } from "vue"
 import { getPost } from "../../api/postAPI"
 import { storeOfPost } from "../../store/post"
 import { storeOfZone } from "../../store/zone"
+import { storeOfUser } from "../../store/user"
+import { storeOfApi } from "../../store/api"
+import { useStore } from "../../store/store"
 import { ToPostDetails, goToOtherUser } from "../../tools/tools"
-import { useRouter } from "vue-router"
-
+import { getCurrentDate } from "../../tools/date"
+import { useRouter, onBeforeRouteLeave } from "vue-router"
+import PushPost from "../PushPost.vue"
+import Post from "../Post.vue"
+import Paging from "../UI/Paging.vue"
 const postStore = storeOfPost()
 const zoneStore = storeOfZone()
+const userStore = storeOfUser()
+const apiStore = storeOfApi()
+const store = useStore()
 const router = useRouter()
 // 加载状态
 let loadingStatus = ref(false);
 // hot post >>
 let hot_posts = ref([])
-onMounted(() => {
+// 所有帖子
+let posts = ref<any>([])
+// 记录目前的scrollTop
+let scrollBarDom = ref()
+onMounted(async () => {
     refreshPost()
 })
 // 刷新帖子方法
@@ -71,42 +46,59 @@ function refreshPost() {
     getPost().then(res => {
         // 把数据存到store中，是所有帖子
         postStore.setPosts(res.data.reverse())
-
+        // 存到当前所有帖子
+        posts.value = res.data
+        total.value = posts.value.length
     }).finally(() => {
         loadingStatus.value = false
     })
 }
-
-// 点击分区名字跳转到分区
-function toZoneDetail(z_id) {
-
-    // 先把store中的当前帖子设置好再跳转
-    let res = zoneStore.setZoneById(z_id)
-    if (res) {
-        router.push({
-            name: "/zoneDetails"
-        })
-    }
-}
-// 点击帖子标题跳转到帖子
-function toPostDetails(z_id, obj) {
-
-    let zone = JSON.stringify(JSON.parse(JSON.stringify(obj)))
-    // 先把store中的当前帖子设置好再跳转
-    let res = zoneStore.setZoneById(z_id)
-    if (res) {
-        router.push({
-            name: "/zoneDetails",
-            query: {
-                zone
-            }
-        })
-    }
-}
 // hot post <<
+
+
+// 设置滚动位置方法
+function setScrollbar() {
+    store.setPostScrollTop(scrollBarDom.value.scrollTop)
+}
+// 返回此页面后，继续到上次滚动位置
+onActivated(async () => {
+    await nextTick()
+    // 设置之前的滚动位置
+    scrollBarDom.value.scrollTop = store.getPostScrollTop()
+})
+
+
+// 分页数据
+let currentPage = ref(1)
+// 每页多少条
+let count = ref(10)
+// 总共多少条
+let total = ref(0)
+// 分页切换方法
+function changeCurrentPage(value) {
+    currentPage.value = value
+    // 每次切换回到顶端
+    scrollBarDom.value.scrollTop = 0
+
+}
 </script>
 
 <style lang="less" scoped>
+.posts {
+    // width: 600px;
+    box-sizing: border-box;
+    padding: 0px 15px;
+    // display: flex;
+    // flex-direction: column;
+    height: 100%;
+    overflow: auto;
+    // 单个post
+
+}
+
+
+
+
 .hot_post {
     height: 470px;
     width: 100%;

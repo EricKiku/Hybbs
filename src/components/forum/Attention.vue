@@ -1,15 +1,19 @@
 <template>
     <!-- 关注的分区 -->
     <div class="attention_subzone">
+        <div class="hr"></div>
         <div class="outside">
             <div class="title">
-                <img src="../../assets/img/follow.png">
                 <span>关注的分区</span>
                 <img @click="refreshAttZone()" title="刷新" class="refresh" src="../../assets/img/Refresh.png" alt="">
             </div>
             <div class="list_subzone scrollbar" v-loading="loadingStatus" element-loading-background="rgba(0, 0, 0, 0.2)">
-                <div class="list_item" v-for="(item, index) in userStore.attentionZones" :key="item['z_id']">
-                    <div><span @click="toZoneDetails(item['z_id'])" :title="item['z_name']">{{ item['z_name'] }}</span>
+                <div class="list_item" @click="toZoneDetails(item['z_id'])" v-for="(item) in userStore.attentionZones"
+                    :key="item['z_id']">
+                    <div class="hidden">
+                        <span :title="item['z_name']">
+                            {{ item['z_name'] }}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -76,18 +80,20 @@ function toZoneDetails(z_id) {
 <style lang="less" scoped>
 .attention_subzone {
     height: 230px;
+    // height: calc(100% - 40px);
     padding: 10px;
     background-color: rgba(255, 255, 255, .8);
-
+    .hr {
+        height: 1px;
+        background-color: #ccc;
+        margin-bottom: 15px;
+    }
 
     .title {
-        height: 25px;
-        line-height: 25px;
+        height: 20px;
+        line-height: 20px;
         text-align: center;
         width: 100%;
-        background-color: @TitleBack;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
         display: flex;
         justify-content: space-between;
 
@@ -97,29 +103,69 @@ function toZoneDetails(z_id) {
     }
 
     .outside {
-        box-shadow:
-            0px 0px 10px rgba(0, 0, 0, 0.06),
-            0px 0px 20px rgba(0, 0, 0, 0.12);
         border-radius: 10px;
+
     }
 
     .list_subzone {
         height: 200px;
         width: 100%;
         overflow: auto;
-        background-color: #FBF7EA;
 
-        border-bottom-left-radius: 10px;
-        border-bottom-right-radius: 10px;
 
         .list_item {
             padding: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+            z-index: 1;
+            position: relative;
+            font-size: inherit;
+            font-family: inherit;
+            color: #5865f5;
+            // padding: 0.5em 1em;
+            outline: none;
+            border: none;
+            // background-color: hsl(237, 55%, 86%);
+            overflow: hidden;
+            transition: color 0.4s ease-in-out;
+            border-radius: 5px;
 
+            &:hover {
+                border-radius: 5px;
+                // background-color: white;
+                color: white;
 
-            span {
-                border-bottom: 1px solid #ccc;
-                cursor: pointer;
+                &::before {
+                    transform: translate3d(50%, -50%, 0) scale3d(15, 15, 15);
+                }
             }
+
+            &::before {
+                content: '';
+                z-index: -1;
+                position: absolute;
+                top: 100%;
+                right: 100%;
+                width: 1em;
+                height: 1em;
+                border-radius: 50%;
+                background-color: #5865f5;
+                transform-origin: center;
+                transform: translate3d(50%, -50%, 0) scale3d(0, 0, 0);
+                transition: transform 0.45s ease-in-out;
+            }
+
+            .hidden {
+                max-width: 135px;
+                /* 强制不换行 */
+                white-space: nowrap;
+                /* 文字用省略号代替超出的部分 */
+                text-overflow: ellipsis;
+                /* 匀速溢出内容，隐藏 */
+                overflow: hidden;
+            }
+
+            span {}
         }
     }
 }

@@ -19,7 +19,7 @@
                 <div class="friend_item" @click="openChatWindow(friend)" @contextmenu.prevent="openRightClickMenu"
                     v-for="(friend) in friend_list" :key="friend['u_id']">
                     <div class="avatar">
-                        <img src="../../assets/img/art.jpg">
+                        <img :src="apiStore.getBaseUrl() + apiStore.getPort() + friend['u_avatar']">
                     </div>
                     <div class="msg">
                         <div>
@@ -44,9 +44,10 @@ import { getFriendListApi } from "../../api/userAPI"
 import { storeOfUser } from "../../store/user"
 import { storeOfChat } from "../../store/chat"
 import RightClickMenu from "../RightClickMenu.vue"
+import { storeOfApi } from "../../store/api"
 const userStore = storeOfUser()
 const chatStore = storeOfChat()
-
+const apiStore = storeOfApi()
 onMounted(() => {
     let attStr = userStore.get("u_attention").split(",")
 

@@ -11,31 +11,31 @@
         <div class="chatMain scrollbar" ref="chatMain">
             <div class="chat_item" v-for="(item, index) in list" :key="index">
                 <!-- 自己的聊天 -->
-                <div class="self" v-if="item['sendId'] == sendUId">
+                <div class="self" v-if="item['c_send_id'] == sendUId">
                     <div class="content ">
                         <div class="nick me">
                             {{ userStore.get('u_nick') }}
                         </div>
                         <div class="chat_message">
-                            {{ item['message'] || item["c_message"] }}
+                            {{ item['c_message'] }}
                         </div>
 
                     </div>
                     <div class="avator">
-                        <img src="../../assets/img/art.jpg" alt="">
+                        <img :src="apiStore.getBaseUrl() + apiStore.getPort() + userStore.get('u_avatar')" alt="">
                     </div>
                 </div>
                 <!-- 对方的聊天 -->
-                <div style="display: flex;" v-if="item['sendId'] == receUId">
+                <div style="display: flex;" v-if="item['c_send_id'] == receUId">
                     <div class="avator">
-                        <img src="../../assets/img/art.jpg" alt="">
+                        <img :src="apiStore.getBaseUrl() + apiStore.getPort() + item['u_avatar']" alt="">
                     </div>
                     <div class="content">
                         <div class="nick">
                             {{ chatStore.getChatUserByStats('u_nick') }}
                         </div>
                         <div class="chat_message">
-                            {{ item['message'] }}
+                            {{ item['c_message'] }}
                         </div>
 
                     </div>
@@ -61,8 +61,10 @@ import { storeOfUser } from "../../store/user"
 import { wsConnApi } from "../../api/wsApi"
 import { getCurrentDate } from "../../tools/date"
 import { getChatBySendAndReceId } from "../../api/chatAPI"
+import { storeOfApi } from "../../store/api"
 const chatStore = storeOfChat()
 const userStore = storeOfUser()
+const apiStore = storeOfApi()
 let sendUId = userStore.get("u_id")
 let receUId = chatStore.getChatUserByStats("u_id")
 onMounted(() => {
@@ -164,22 +166,22 @@ function wsConnect() {
 let sendMessage = ref("")
 // 发送消息结构体
 let messageStruct = {
-    sendId: 0,
+    c_send_id: 0,
     sendName: "",
-    receId: 0,
+    c_rece_id: 0,
     receName: "",
-    message: "",
-    date: ""
+    c_message: "",
+    c_date: ""
 }
 const send = () => {
     if (sendMessage.value != "") {
         // if (false) {
-        messageStruct.sendId = userStore.get('u_id');
+        messageStruct.c_send_id = userStore.get('u_id');
         messageStruct.sendName = userStore.get('u_nick')
-        messageStruct.receId = chatStore.getChatUserByStats('u_id');
+        messageStruct.c_rece_id = chatStore.getChatUserByStats('u_id');
         messageStruct.receName = chatStore.getChatUserByStats('u_nick');
-        messageStruct.message = sendMessage.value;
-        messageStruct.date = getCurrentDate()
+        messageStruct.c_message = sendMessage.value;
+        messageStruct.c_date = getCurrentDate()
         // 给list追加一条本记录
         // list.value.push(messageStruct)
         sendMessage.value = ""

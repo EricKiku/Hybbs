@@ -3,6 +3,7 @@ import { storeOfZone } from "../store/zone"
 import { getZone } from "../api/zoneAPI"
 import { addExpApi, getUserByUId } from "../api/userAPI"
 import { storeOfStatus } from "../store/status"
+import { ElMessage } from 'element-plus'
 import router from "../router/router"
 const userStore = storeOfUser()
 const zoneStore = storeOfZone()
@@ -46,9 +47,9 @@ export const ToPostDetails = (z_id, obj) => {
     let res = zoneStore.setZoneById(z_id)
     if (res) {
         router.push({
-            name: "/zoneDetails",
+            name: "post",
             query: {
-                zone
+                post: JSON.stringify(obj)
             }
         })
     }
@@ -89,7 +90,7 @@ export const replyHandle = (replys) => {
     let replyToReply = []
     // 分离出直接回复和回复给回复
     for (let i = 0; i < replys.length; i++) {
-        if (replys[i]['r_reply'] == 0) {
+        if (!replys[i]['r_reply']) {
             directReply.push(replys[i])
         } else {
             replyToReply.push(replys[i])
@@ -146,4 +147,28 @@ export const addExpTool = (u_id, value, callback) => {
             })
         }
     })
+}
+
+// 消息提示方法
+export const message = (type, content) => {
+    ElMessage({
+        message: content,
+        type: type == 1 ? 'success' : 'warning',
+    })
+}
+
+
+// 处理置顶帖子
+export const handleTopPost = (posts) => {
+    // 置顶标志：p_top = 1
+    let topArr = []
+    let normalArr = []
+    for (const post of posts) {
+        if (post['p_top'] == 1) {
+            topArr.push(post)
+        } else {
+            normalArr.push(post)
+        }
+    }
+    return [...topArr, ...normalArr]
 }

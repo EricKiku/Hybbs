@@ -11,8 +11,8 @@
         </div>
         <div class="zone_list scrollbar">
             <div class="zone_item" v-for="(item, index) in zoneStore.allZone" :key="index">
-                <img @click="ToZoneDetails2(item)" class="zoneIcon" :src="'src/zoneIcon/' + item['z_id'] + '.jpg'"
-                    :title="item['z_name']">
+                <img @click="ToZoneDetails2(item)" class="zoneIcon"
+                    :src="apiStore.getBaseUrl() + apiStore.getPort() + item['z_icon']" :title="item['z_name']">
                 <div class="information">
                     <div class="zone_name" :title="item['z_name']">{{ item['z_name'] }}</div>
                     <div class="zone_number" title="关注">
@@ -37,8 +37,10 @@ import { getZone } from "../../api/zoneAPI"
 import { storeOfZone } from "../../store/zone"
 import { useRouter } from "vue-router"
 import { ToZoneDetails2 } from "../../tools/tools"
+import { storeOfApi } from "../../store/api"
 const zoneStore = storeOfZone()
 const router = useRouter()
+const apiStore = storeOfApi()
 onMounted(() => {
     // 先去store中找，如果有就不用请求了
     if (zoneStore.allZone.length == 0) {

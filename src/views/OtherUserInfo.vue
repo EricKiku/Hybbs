@@ -4,7 +4,7 @@
             <div class="top"></div>
             <div class="one" v-if="otherUser">
                 <div class="one_1">
-                    <img src="../assets/img/art.jpg">
+                    <img :src="apiStore.getBaseUrl() + apiStore.getPort() + otherUser['u_avatar']">
                 </div>
                 <div class="one_2">
                     <span>
@@ -84,10 +84,12 @@ import { useRouter, useRoute } from "vue-router"
 import MyZone from "../components/userInfo/MyZone.vue"
 import MyPosts from "../components/userInfo/MyPosts.vue"
 import MyReply from "../components/userInfo/MyReply.vue"
+import { storeOfApi } from "../store/api"
 const userStore = storeOfUser()
 const router = useRouter()
 const route = useRoute()
 const zoneStore = storeOfZone()
+const apiStore = storeOfApi()
 
 const uId = route.query.uId
 

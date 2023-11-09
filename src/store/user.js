@@ -16,7 +16,11 @@ export const storeOfUser = defineStore("user", {
                 u_attention: "",
                 u_signin_count: 0,
                 u_signin_date: "",
-                u_exp: 0
+                u_exp: 0,
+                u_avatar: "",
+                color: "",
+                chat_color: '',
+                posts: 0
             },
             isAlreadySignin: false,
             attentionZones: []
@@ -40,7 +44,10 @@ export const storeOfUser = defineStore("user", {
                 this.setSignIN(true)
             }
             this.currentUser.u_exp = user.u_exp
-            console.log('currentUser:', this.currentUser);
+            this.currentUser.u_avatar = user.u_avatar
+            this.currentUser.color = user.color
+            this.currentUser.chat_color = user.chat_color
+            this.currentUser.posts = user.posts
         },
         // 设置签到
         setSignIN(bool) {

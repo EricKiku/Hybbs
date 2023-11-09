@@ -12,7 +12,7 @@
             <!-- vfor store中的关注列表 -->
             <div @click="toZoneDetails(item['z_id'])" class="zone_item" v-for="(item) in myZones" :key="item['z_id']">
                 <div class="img">
-                    <img :src="'src/zoneIcon/' + item['z_id'] + '.jpg'" :alt="item['z_name']" :title="item['z_name']">
+                    <img :src="apiStore.getBaseUrl()+apiStore.getPort()+item['z_icon']" :alt="item['z_name']" :title="item['z_name']">
                 </div>
                 <div class="message">
                     <div :title="item['z_name']">{{ item['z_name'] }}</div>
@@ -28,9 +28,10 @@ import { storeOfZone } from "../../store/zone"
 import { storeOfUser } from "../../store/user"
 import { getZone } from "../../api/zoneAPI"
 import { TtoZoneDetails } from "../../tools/tools"
+import {storeOfApi} from "../../store/api"
 const zoneStore = storeOfZone()
 const userStore = storeOfUser()
-
+const apiStore = storeOfApi()
 let props = defineProps(["uId"])
 let myZones = <any>ref([])
 let loadingStatus = ref(false)

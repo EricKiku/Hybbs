@@ -1,24 +1,21 @@
 <template>
-    <div>
-        <div class="newest_post">
-            <div class="title">
-                <img src="../../assets/img/newest.png" alt="">
-                最新帖子
-            </div>
-            <div class="post_list scrollbar">
-                <div class="list_item" v-for="(item, index) in newest_post_zone" :key="item['p_id']">
-                    <!-- <div class="item"> -->
-                    <div @click="toZoneDetail(item['z_id'])" class="zoneName"
-                        :title="item['z_name'] + ':' + item['z_introduce']">
-                        [<div>{{ item['z_name'] }}</div>]
-                    </div>
-                    <div @click="toPostDetails(item['z_id'], item)" class="postTitle"
-                        :title="'[' + item['p_title'] + ']' + (item['p_content'] + '').slice(0, 10) + '...'">
-                        <div>{{ item['p_title'] }}</div>
-                    </div>
-                    <!-- </div> -->
-
+    <div class="newest_post">
+        <div class="title">
+            最新帖子
+        </div>
+        <div class="post_list scrollbar">
+            <div class="list_item" v-for="(item, index) in newest_post_zone" :key="item['p_id']">
+                <!-- <div class="item"> -->
+                <div @click="toZoneDetail(item['z_id'])" class="zoneName"
+                    :title="item['z_name'] + ':' + item['z_introduce']">
+                    [<div>{{ item['z_name'] }}</div>]
                 </div>
+                <div @click="toPostDetails(item['z_id'], item)" class="postTitle"
+                    :title="'[' + item['p_title'] + ']' + (item['p_content'] + '').slice(0, 10) + '...'">
+                    <div>{{ item['p_title'] }}</div>
+                </div>
+                <!-- </div> -->
+
             </div>
         </div>
     </div>
@@ -76,9 +73,9 @@ function toPostDetails(z_id, obj) {
     let res = zoneStore.setZoneById(z_id)
     if (res) {
         router.push({
-            name: "/zoneDetails",
+            name: "post",
             query: {
-                zone
+                post:JSON.stringify(obj)
             }
         })
     }
@@ -87,7 +84,8 @@ function toPostDetails(z_id, obj) {
 
 <style lang="less" scoped>
 .newest_post {
-    height: 330px;
+    flex: 1;
+    // height: 330px;
     padding: 10px;
     background-color: rgba(255, 255, 255, .8);
 
@@ -98,7 +96,7 @@ function toPostDetails(z_id, obj) {
 
     .post_list {
         overflow: auto;
-        height: 300px;
+        // height: 300px;
         width: 100%;
 
         .list_item {

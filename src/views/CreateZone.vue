@@ -57,7 +57,7 @@
 import { ref } from "vue"
 import { storeOfUser } from "../store/user"
 import { useRouter } from "vue-router";
-import { createZoneApi, uploadpictureApi } from "../api/zoneAPI"
+import { createZoneApi } from "../api/zoneAPI"
 import { ElMessageBox } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { getCurrentDate } from "../tools/date.js"
@@ -83,8 +83,6 @@ function selectPicture(e) {
     let file = e.target.files[0]
     // 添加图片
     formData.append("icon", file)
-    // 添加参数
-    formData.append("email", userStore.currentUser.u_email)
     //  预览图片
     let url = URL.createObjectURL(file)
     picturePath.value = url
@@ -112,50 +110,23 @@ function dialogSure() {
     if (userStore.currentUser.u_id) {
         // 点击确认后再发送创建请求
         if (zoneName.value != "") {
-            createZoneApi(zoneName.value, zoneIntroduction.value, lord, getCurrentDate()).then(res => {
+            formData.append("u_id", userStore.get('u_id'))
+            formData.append("zoneName", zoneName.value)
+            formData.append("zoneIntroduction", zoneIntroduction.value)
+            formData.append("date", getCurrentDate())
+            createZoneApi(formData).then(res => {
                 //  创建成功才上传图片
                 if (res.status == 200) {
-                    // 获取到插入的id
-                    let zoneId = res.data
-                    // 调用上传图片api
-                    formData.append("id", zoneId)
-                    uploadpictureApi(formData).then(res => {
-                        if (res.status == 200) {
-                            dialogVisible.value = false
-                            ElMessage({
-                                message: '创建成功',
-                                type: 'success',
-                            })
-                            // 成功后应该跳转走，并且按钮不可点击
-                            createBtnDisabled.value = true
-                            // 初始化formdata
-                            formData = new FormData()
-                            router.go(-1)
-                        } else {
-                            dialogVisible.value = false
-                            ElMessage({
-                                message: '创建失败',
-                                type: 'warning',
-                            })
-                        }
-                        // 初始化formdata
-                        formData = new FormData()
-                        // 不管成功与否
-                    }, res => {
-                        dialogVisible.value = false
-                        // 初始化formdata
-                        formData = new FormData()
-                    })
+                    message(1, "创建成功")
+                    dialogVisible.value = false
+                    // 成功后应该跳转走，并且按钮不可点击
+                    createBtnDisabled.value = true
+                    router.go(-1)
+
                 } else {
-                    ElMessage({
-                        message: '创建失败',
-                        type: 'warning',
-                    })
+                    message(2, "创建失败")
                 }
-
-
-            }, rej => {
-                // 初始化formdata
+            }).finally(() => {                // 初始化formdata
                 formData = new FormData()
                 dialogVisible.value = false
             })
@@ -168,7 +139,13 @@ function dialogSure() {
     }
 
 }
-
+// 消息提示方法
+function message(type, content) {
+    ElMessage({
+        message: content,
+        type: type == 1 ? 'success' : 'warning',
+    })
+}
 </script>
 
 <style lang="less" scoped>

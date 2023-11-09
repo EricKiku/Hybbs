@@ -1,4 +1,5 @@
 <template>
+    <!-- 废弃 -->
     <div class="user">
         <div class="mask" v-show="dialogVisual"></div>
         <div class="dialog" v-if="dialogVisual">
@@ -19,7 +20,9 @@
             <div class="top"></div>
             <div class="one">
                 <div class="one_1">
-                    <img src="../assets/img/art.jpg" title="点击切换头像">
+                    <input @change="uploadFile" style="display: none;" ref="avatarInput" type="file">
+                    <img @click="openFile" :src="apiStore.getBaseUrl() + apiStore.getPort() + userStore.get('u_avatar')"
+                        title="点击切换头像">
                 </div>
                 <div class="one_2">
                     <span v-show="!editNickStatus">
@@ -43,7 +46,8 @@
                         </div>
                         <div class="exp_bar position" :title="userStore.get('u_exp') + '/' + userStore.get('u_lv') * 100">
                             <div class="bar"
-                                :style="{ width: (userStore.get('u_exp') / (userStore.get('u_lv') * 100)) * 100 + '%' }"></div>
+                                :style="{ width: (userStore.get('u_exp') / (userStore.get('u_lv') * 100)) * 100 + '%' }">
+                            </div>
                         </div>
                     </div>
                     <div class="fensi">
@@ -66,8 +70,8 @@
                         <div @click="toZoneDetails(zone['z_id'])" class="zone_item"
                             v-for="(zone, index) in userStore.attentionZones" :key="zone['z_id']">
                             <div class="img">
-                                <img :src="'src/zoneIcon/' + zone['z_id'] + '.jpg'" :alt="zone['z_name']"
-                                    :title="zone['z_name']">
+                                <img :src="apiStore.getBaseUrl() + apiStore.getPort() + zone['z_icon']"
+                                    :alt="zone['z_name']" :title="zone['z_name']">
                             </div>
                             <div class="message">
                                 <div :title="zone['z_name']">{{ zone['z_name'] }}</div>
@@ -90,7 +94,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from "vue"
 import { storeOfUser } from "../store/user"
-import { setNickApi, setAttentionZone, getUserByUId } from "../api/userAPI"
+import { setNickApi, setAttentionZone, getUserByUId, setAvatar } from "../api/userAPI"
 import { ElMessage } from 'element-plus'
 import { UpdateAttentions } from "../tools/tools"
 import { storeOfZone } from "../store/zone"
@@ -98,10 +102,11 @@ import { useRouter } from "vue-router"
 import MyZone from "../components/userInfo/MyZone.vue"
 import MyPosts from "../components/userInfo/MyPosts.vue"
 import MyReply from "../components/userInfo/MyReply.vue"
+import { storeOfApi } from "../store/api"
 const userStore = storeOfUser()
 const router = useRouter()
 const zoneStore = storeOfZone()
-
+const apiStore = storeOfApi()
 let loadingStatus = ref(false)
 
 // 我的用户信息
@@ -119,6 +124,8 @@ function getMy() {
         console.log("my:", res.data);
         if (res.status == 200) {
             userOfMe.value = res.data
+            userStore.setCurrentUser(res.data)
+            return true
         }
     }).finally(() => loadingStatus.value = false)
 }
@@ -248,6 +255,27 @@ function toZoneDetails(z_id) {
         })
     }
 }
+
+// 修改头像方法
+let avatarInput = ref()
+// 打开文件选择
+function openFile() {
+    avatarInput.value.click()
+}
+// 选择完毕执行方法
+let formData = new FormData()
+function uploadFile(e) {
+    console.log(e.target.files[0]);
+    formData.append("avatar", e.target.files[0])
+    formData.append("u_id", userStore.get('u_id'))
+
+    setAvatar(formData).then(res => {
+        if (res.status == 200) {
+            getMy()
+        }
+    })
+}
+
 // << 管理分区
 // 消息提示方法
 function message(type, content) {

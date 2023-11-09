@@ -48,7 +48,7 @@
                     </div>
                     <div class="zoneItem" @click="ToZoneDetails2(zone)" v-for="(zone) in searchResult['zones']"
                         :key="zone['z_id']">
-                        <img :src="'src/zoneIcon/' + zone['z_id'] + '.jpg'">
+                        <img :src="apiStore.getBaseUrl() + apiStore.getPort() + zone['z_icon']">
                         <div class="zoneName" :title="zone['z_name']">{{ zone['z_name'] }}</div>
                         <div class="zoneInfo">
                             <span><img src="../../assets/img/followNumber.png" alt="">:{{ zone['z_follows'] }}</span>
@@ -84,7 +84,7 @@
                     </div>
                     <div class="userItem" @click="goToOtherUser(user['u_id'])" v-for="(user) in searchResult['users']"
                         :key="user['u_id']">
-                        <img src="../../assets/img/art.jpg">
+                        <img :src="apiStore.getBaseUrl() + apiStore.getPort() + user['u_avatar']">
                         <span>{{ user['u_nick'] }}</span>
                     </div>
                 </div>
@@ -133,8 +133,10 @@ import { signinApi } from "../../api/userAPI"
 import { ElMessage } from 'element-plus'
 import { getCurrentDate } from "../../tools/date"
 import { ToZoneDetails2, ToPostDetails, goToOtherUser, addExpTool } from "../../tools/tools"
+import { storeOfApi } from "../../store/api"
 const router = useRouter();
 const userStore = storeOfUser()
+const apiStore = storeOfApi()
 // head >>
 let searchContent = ref("")
 // 搜索框焦点事件
@@ -522,6 +524,13 @@ function message(type, content) {
                     .post_content {
                         font-size: 14px;
                         color: #737373;
+                        height: 30px;
+                        /* 强制不换行 */
+                        white-space: nowrap;
+                        /* 文字用省略号代替超出的部分 */
+                        text-overflow: ellipsis;
+                        /* 匀速溢出内容，隐藏 */
+                        overflow: hidden;
                     }
                 }
             }

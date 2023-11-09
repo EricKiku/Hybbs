@@ -1,29 +1,20 @@
 import request from "./request"
 
 //  创建分区
-export const createZoneApi = (name, introduce, lord, createDate) => {
+export const createZoneApi = (formData) => {
     return request({
         url: "/zone/create",
         method: "POST",
-        data: {
-            name,
-            introduce,
-            lord,
-            createDate
-        }
+        data: formData
     })
 }
 
-// 上传图片和id
-export const uploadpictureApi = (formData) => {
+// 修改分区图标
+export const updateZoneIconApi = (formData) => {
     return request({
-        url: "/zone/uploadpicture",
+        url: "/zone/updateZoneIcon",
         method: "POST",
         data: formData,
-        headers: {
-            "Content-Type": "multipart/form-data"
-        }
-
     })
 }
 
@@ -77,6 +68,17 @@ export const getZoneByLordApi = (u_id) => {
         method: "GET",
         params: {
             u_id
+        }
+    })
+}
+
+// 获取zone根据uid
+export const zonesByUIdApi = (uid) => {
+    return request({
+        url: "/zone/zonesByUId",
+        method: "GET",
+        params: {
+            uid
         }
     })
 }

@@ -13,7 +13,10 @@ export const storeOfZone = defineStore("zone", {
                 z_name: "",
                 z_posts: 0,
                 z_zonelord: 0
-            }
+            },
+            createPostDiaVisual: false,
+            // 所有图片预览组件显示与否
+            picturePreviewPath: ""
 
         }
     },
@@ -46,6 +49,25 @@ export const storeOfZone = defineStore("zone", {
         // 获取当前zone
         getCurrentPriviewZone() {
             return this.currentPreviewZone
+        },
+        get(stats) {
+            return this.currentPreviewZone[stats]
+        },
+        // 设置创建帖子对话框显示与否
+        setCreatePostDia(value) {
+            this.createPostDiaVisual = value
+        },
+        // 获取创建帖子对话框显示与否
+        getCreatePostDia() {
+            return this.createPostDiaVisual
+        },
+        // 改变预览图片组件地址
+        setPicturePreviewPath(value) {
+            this.picturePreviewPath = value
+        },
+        // 获取预览图片组件的地址
+        getPicturePreviewPath() {
+            return this.picturePreviewPath
         }
     }
 })

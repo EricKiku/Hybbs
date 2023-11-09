@@ -15,7 +15,7 @@ const creatWindow = () => {
         }
     })
 
-    mainWin.loadURL("http://localhost:5173/")
+    mainWin.loadURL("http://localhost:81")
     // 等待页面加载完再去让窗口显示
     mainWin.on("ready-to-show", () => {
         mainWin.show()

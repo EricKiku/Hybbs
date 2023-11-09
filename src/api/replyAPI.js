@@ -13,6 +13,14 @@ export const publishReplyApi = (u_id, p_id, r_content, r_date, r_id) => {
         }
     })
 }
+// 回复带文件
+export const publishReplyWithFileApi = (formData) => {
+    return request({
+        url: "/reply/publishWithFile",
+        method: "POST",
+        data: formData
+    })
+}
 // 回复给回复
 export const publishReplyToReplyApi = (u_id, p_id, r_content, r_date, r_id) => {
     return request({
@@ -45,6 +53,17 @@ export const getReplyByUIdApi = (u_id) => {
         method: "GET",
         params: {
             u_id
+        }
+    })
+}
+
+// 根据rid和rreply获取回复
+export const getReplyByRId = (rid) => {
+    return request({
+        url: "/reply/byRId",
+        method: "GET",
+        params: {
+            rid
         }
     })
 }

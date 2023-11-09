@@ -17,10 +17,11 @@
 
         </div>
         <div class="siderbar_item" @click="SwitchingRoute('plaza')">
-            <div class="activeStatus" :class="{ active: route.path == '/plaza', unactive: route.path != '/plaza' }"></div>
-            <div title="广场">
-                <img v-show="route.path != '/plaza'" src="../assets/img/plaza.png" alt="">
-                <img v-show="route.path == '/plaza'" src="../assets/img/plaza-a.png" alt="">
+            <div class="activeStatus"
+                :class="{ active: route.path.indexOf('/plaza') != -1, unactive: route.path.indexOf('/plaza') == -1 }"></div>
+            <div title="聊天室">
+                <img v-show="route.path.indexOf('/plaza') == -1" src="../assets/img/chat_room_un.png" alt="">
+                <img v-show="route.path.indexOf('/plaza') != -1" src="../assets/img/chat_room.png" alt="">
                 <!-- <div class="text">
                     广场
                 </div> -->
@@ -46,11 +47,11 @@ const route = useRoute();
 function SwitchingRoute(type) {
     if (type === 'forum') {
         router.push({
-            name: "/forum"
+            name: "home"
         })
     } else if (type === 'plaza') {
         router.push({
-            name: "/plaza"
+            name: "/default"
         })
     }
 }
