@@ -1,4 +1,5 @@
 <template>
+    <!-- 废弃 -->
     <div class="options">
         <button @click="goBack">{{ '<' }}返回</button>
     </div>

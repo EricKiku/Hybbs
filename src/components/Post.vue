@@ -75,7 +75,7 @@ const apiStore = storeOfApi()
 const router = useRouter()
 const route = useRoute()
 
-// 接收参数
+// 接收参数dwad
 let props = defineProps(["post", "zName"])
 
 // 处理more按钮点击效果

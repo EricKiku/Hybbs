@@ -70,24 +70,24 @@ const routes = [
         name: "/create_zone",
         component: () => import("../views/CreateZone.vue")
     },
-    {
-        path: "/zoneDetails",
-        name: "/zoneDetails",
-        component: () => import("../views/zoneDetails.vue"),
-        redirect: "/zoneDetails/postlist",
-        children: [
-            {
-                path: "/zoneDetails/postlist",
-                name: "postlist",
-                component: () => import("../views/PostList.vue")
-            },
-            {
-                path: "/zoneDetails/post",
-                name: "post",
-                component: () => import("../components/zone/PostDetail.vue")
-            }
-        ]
-    },
+    // {
+    //     path: "/zoneDetails",
+    //     name: "/zoneDetails",
+    //     component: () => import("../views/zoneDetails.vue"),
+    //     redirect: "/zoneDetails/postlist",
+    //     children: [
+    //         {
+    //             path: "/zoneDetails/postlist",
+    //             name: "postlist",
+    //             component: () => import("../views/PostList.vue")
+    //         },
+    //         {
+    //             path: "/zoneDetails/post",
+    //             name: "post",
+    //             component: () => import("../components/zone/PostDetail.vue")
+    //         }
+    //     ]
+    // },
     {
         path: "/personhomepage",
         name: "personhp",
@@ -110,11 +110,6 @@ const routes = [
                 component: () => import("../views/personhomePage/personZone.vue")
             }
         ]
-    },
-    {
-        path: "/otherUser",
-        name: "/otherUser",
-        component: () => import("../views/OtherUserInfo.vue")
     },
     {
         path: "/404",

@@ -1,4 +1,5 @@
 <template>
+    <!-- 废弃 -->
     <div @click="closeBigPicture" class="pictureBigPreview" v-if="bigPicturePath">
         <img :src="bigPicturePath" alt="">
     </div>

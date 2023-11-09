@@ -1,4 +1,5 @@
 <template>
+    <!-- 废弃 -->
     <!-- 发帖对话框 -->
     <div class="dialog" v-if="dialogVisual">
         <div @click="closeDialog()" class="close"></div>

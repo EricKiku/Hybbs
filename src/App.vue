@@ -18,8 +18,6 @@
 import FormTitleBar from "./components/FormTitleBar.vue";
 // 引入侧边栏
 import Sidebar from "./components/Sidebar.vue";
-// 引入聊天窗口
-import ChatWindow from "./components/forum/ChatWindow.vue"
 import { storeOfChat } from "./store/chat";
 // 引入重置样式表
 import './assets/css/reset.css'
