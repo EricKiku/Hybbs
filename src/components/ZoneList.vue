@@ -21,8 +21,10 @@ import { ref, onMounted } from "vue"
 import { getZone } from "../api/zoneAPI"
 import { storeOfApi } from "../store/api"
 import { useRouter } from "vue-router"
+import { storeOfZone } from "../store/zone"
 const apiStore = storeOfApi()
 const router = useRouter()
+const zoneStore = storeOfZone()
 onMounted(() => {
     allZones()
 })
@@ -33,6 +35,8 @@ function allZones() {
     getZone().then(res => {
         if (res.status == 200) {
             zones.value = sortByPosts(res.data)
+            // 成功后，把数据存储到store中
+            zoneStore.setAllZone(zones.value)
         } else {
             zones.value = []
         }

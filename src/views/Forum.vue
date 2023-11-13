@@ -1,6 +1,4 @@
 <template>
-    <picturePreview v-show="zoneStore.getPicturePreviewPath()" :imgPath="zoneStore.getPicturePreviewPath()">
-    </picturePreview>
     <div class="forum">
         <!-- 标题组件 -->
         <Header></Header>

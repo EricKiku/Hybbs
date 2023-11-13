@@ -117,6 +117,11 @@ const routes = [
         component: () => import("../views/404.vue")
     },
     {
+        path: "/test",
+        name: "test",
+        component: () => import("../views/test/test.vue")
+    },
+    {
         path: '/:pathMatch(.*)',
         redirect: "/404"
     }

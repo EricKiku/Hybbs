@@ -1,4 +1,6 @@
 <template>
+  <picturePreview v-show="zoneStore.getPicturePreviewPath()" :imgPath="zoneStore.getPicturePreviewPath()">
+  </picturePreview>
   <FormTitleBar />
   <!-- 聊天窗口 -->
   <ChatWindow v-if="chatStore.getChatStatus()"></ChatWindow>
@@ -18,14 +20,17 @@
 import FormTitleBar from "./components/FormTitleBar.vue";
 // 引入侧边栏
 import Sidebar from "./components/Sidebar.vue";
+import picturePreview from "./components/picturePreview.vue"
 import { storeOfChat } from "./store/chat";
 // 引入重置样式表
 import './assets/css/reset.css'
 import { ref, onMounted } from "vue"
 import { loginByid } from "./api/loginAPI"
 import { storeOfUser } from "./store/user"
+import { storeOfZone } from "./store/zone"
 const userStore = storeOfUser()
 const chatStore = storeOfChat()
+const zoneStore = storeOfZone()
 // 自动登录
 onMounted(() => {
 

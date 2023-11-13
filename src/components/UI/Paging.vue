@@ -54,8 +54,8 @@ function right() {
 
 <style lang="less" scoped>
 .activated {
-    background-color: #489aff !important;
-    color: white !important;
+    // background-color: #489aff !important;
+    color: #489aff !important;
 }
 
 .paging {
@@ -64,11 +64,12 @@ function right() {
     user-select: none;
 
     .item {
-        height: 40px;
-        width: 40px;
-        border: 1px solid #489aff;
+        height: 30px;
+        width: 30px;
+        // border: 1px solid #489aff;
         background-color: white;
-        color: #489aff;
+        // color: #489aff;
+        color: #ccc;
         margin: 0px 5px;
         border-radius: 5px;
         text-align: center;
@@ -78,13 +79,13 @@ function right() {
         transition: all 0.2s;
 
         &:hover {
-            background-color: #489aff;
-            color: white;
+            // background-color: #489aff;
+            color: #489aff;
         }
     }
 
     .page {
-        line-height: 40px;
+        line-height: 30px;
     }
 
     .left,
@@ -93,12 +94,12 @@ function right() {
         text-align: center;
 
         &:hover {
-            background-color: #80b9ff;
+            // background-color: #80b9ff;
         }
 
         img {
-            height: 20px;
-            width: 20px;
+            height: 15px;
+            width: 15px;
             position: relative;
             top: 50%;
             transform: translateY(-50%);

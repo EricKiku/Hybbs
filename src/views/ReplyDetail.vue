@@ -8,7 +8,15 @@
                 回复详情
             </div>
         </div>
-
+        <div class="ofPost" v-if="post" @click="routerToPostDetails">
+            <img :src="apiStore.getBaseUrl() + apiStore.getPort() + post['u_avatar']" alt="">
+            <div class="title text">
+                {{ post['p_title'] }}
+            </div>
+            <div class="content text">
+                <span>{{ post['p_content'] }}</span>
+            </div>
+        </div>
         <div class="reply" v-if="reply">
             <div class="user">
                 <img :src="apiStore.getBaseUrl() + apiStore.getPort() + reply['u_avatar']" alt="">
@@ -17,28 +25,34 @@
                 <div class="date">{{ reply['r_date'] }}</div>
             </div>
             <div class="content" :style="{ color: reply['chat_color'] }">{{ reply['r_content'] }}</div>
-            <div class="video" v-if="reply['r_pov'] == 'v'">
-                <div class="item" v-for="(video, index) in reply['p_picture'].split('?')" :key="index">
-                    <video height="300" v-if="video" controls>
-                        <source :src="apiStore.getBaseUrl() + apiStore.getPort() + video">
-                    </video>
-                </div>
+            <div class="video" v-if="reply['r_fileType'] == 'v'">
+                <!-- <div class="item" v-for="(video, index) in reply['r_file'].split('?')" :key="index"> -->
+                <video height="300" controls>
+                    <source :src="apiStore.getBaseUrl() + apiStore.getPort() + reply['r_file']">
+                </video>
+                <!-- </div> -->
             </div>
-            <div class="picture" v-if="reply['r_pov'] == 'p'">
+            <div class="picture" v-if="reply['r_fileType'] == 'p'">
                 <div class="item" v-for="(pic, index) in reply['r_file'].split('?')" :key="index">
                     <img v-if="pic" :src="apiStore.getBaseUrl() + apiStore.getPort() + pic" alt="">
                 </div>
             </div>
             <!-- 有可能是文件 -->
-            <div class="file" v-if="reply['p_filetype'] == 'f'">
+            <div class="file" v-if="reply['r_fileType'] == 'f'">
                 <!-- 以后再对文件处理 -->
+                <File :path="apiStore.getBaseUrl() + apiStore.getPort() + reply['r_file']" :download="true"
+                    :file="{ name: reply['r_file'].slice(reply['r_file'].indexOf('_') + 1), size: '' }">
+                </File>
             </div>
         </div>
         <div class="hr"></div>
         <!-- 回复 -->
         <div class="replytoreply" v-if="replys">
             <div class="title"><span>{{ replys.length }}</span>个回复</div>
-            <div class="replylist">
+            <div class="emptyMessage" v-if="replys.length == 0">
+                暂时还没有回复
+            </div>
+            <div class="replylist" v-if="replys.length != 0">
                 <div class="replyItem" v-for="(reply) in replys" :key="reply['r_id']">
                     <img :src="apiStore.getBaseUrl() + apiStore.getPort() + reply['u_avatar']" alt="">
                     <div>
@@ -51,10 +65,31 @@
                         </div>
                         <div class="content" :style="{ color: reply['chat_color'] }">
                             <span>{{ reply['r_content'] }}</span>
+
+                            <div class="video" v-if="reply['r_fileType'] == 'v'">
+                                <div class="item" v-for="(video, index) in reply['p_picture'].split('?')" :key="index">
+                                    <video height="300" v-if="video" controls>
+                                        <source :src="apiStore.getBaseUrl() + apiStore.getPort() + video">
+                                    </video>
+                                </div>
+                            </div>
+                            <div class="picture" v-if="reply['r_fileType'] == 'p'">
+                                <div class="item" v-for="(pic, index) in reply['r_file'].split('?')" :key="index">
+                                    <img v-if="pic" :src="apiStore.getBaseUrl() + apiStore.getPort() + pic" alt="">
+                                </div>
+                            </div>
+                            <!-- 有可能是文件 -->
+                            <div class="file" v-if="reply['r_fileType'] == 'f'">
+                                <!-- 以后再对文件处理 -->
+                                <File :path="apiStore.getBaseUrl() + apiStore.getPort() + reply['r_file']" :download="true"
+                                    :file="{ name: reply['r_file'].slice(reply['r_file'].indexOf('_') + 1), size: '' }">
+                                </File>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <PushReply @refresh="replyandtoReplys"></PushReply>
         </div>
     </div>
 </template>
@@ -64,11 +99,16 @@ import { ref, onMounted } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { getReplyByRId } from "../api/replyAPI"
 import { storeOfApi } from "../store/api"
+import { getPostByPidApi } from "../api/postAPI"
+import PushReply from "../components/PushReply.vue"
+import File from "../components/UI/File.vue"
 const route = useRoute()
 const router = useRouter()
 const apiStore = storeOfApi()
 // 回复对象
 let reply = ref()
+// 帖子对象
+let post = ref()
 // 该回复的回复
 let replys = ref()
 onMounted(() => {
@@ -77,22 +117,51 @@ onMounted(() => {
     if (!route.query.rid) {
         router.go(-1)
     } else {
+        // 获取该回复所属的帖子
+        replyOfPost()
         // 获取回复和回复给该回复的回复
-        getReplyByRId(route.query.rid).then(res => {
-            if (res.status == 200) {
-                console.log(res.data);
-
-                // 回复对象拿取的是返回数据的第一个元素
-                reply.value = res.data[0]
-                // 其他回复是拿取的剩下的所有元素
-                replys.value = res.data.slice(1)
-            } else {
-                reply.value = []
-            }
-        })
+        replyandtoReplys()
     }
 
 })
+// 获取该回复所属的帖子
+function replyOfPost() {
+    getPostByPidApi(route.query.pId).then(res => {
+        console.log(res);
+        if (res.status == 200) {
+            post.value = res.data
+        } else {
+            post.value = null
+        }
+    })
+}
+// 获取该回复和回复给该回复的回复
+function replyandtoReplys() {
+    getReplyByRId(route.query.rid).then(res => {
+        if (res.status == 200) {
+            console.log(res.data);
+
+            // 回复对象拿取的是返回数据的第一个元素
+            reply.value = res.data[0]
+            // 其他回复是拿取的剩下的所有元素
+            replys.value = res.data.slice(1)
+        } else {
+            reply.value = []
+        }
+    })
+}
+// 跳转到帖子详情
+// 跳转到帖子详情
+function routerToPostDetails() {
+    router.push({
+        name: "postDet",
+        query: {
+            pId: route.query.pId
+        }
+    })
+}
+
+
 // 返回图标是否被鼠标悬浮
 let backMouseHover = ref(false)
 // 路由后退
@@ -153,6 +222,45 @@ function goBack() {
         }
     }
 
+    >.ofPost {
+        height: 40px;
+        background-color: #ebebeb;
+        border-radius: 5px;
+        display: flex;
+        cursor: pointer;
+
+        img {
+            height: 30px;
+            width: 30px;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 50%;
+            margin-left: 5px;
+        }
+
+        >.text {
+            height: 40px;
+            line-height: 40px;
+            /* 强制不换行 */
+            white-space: nowrap;
+            /* 文字用省略号代替超出的部分 */
+            text-overflow: ellipsis;
+            /* 匀速溢出内容，隐藏 */
+            overflow: hidden;
+        }
+
+        >.title {
+            font-weight: bold;
+        }
+
+        >.content {
+            span {
+                color: #a1a1a8;
+                border-bottom: 1px dotted #ccc;
+            }
+        }
+    }
 
     .reply {
         .user {
@@ -269,6 +377,14 @@ function goBack() {
 
         }
 
+        .emptyMessage {
+            text-align: center;
+            font-family: "黑体";
+            color: #676a79;
+            padding: 30px 0px;
+            // border-bottom: 1px solid #ccc;
+        }
+
         .replyLoad {
             color: #676a79;
             font-size: 14px;
@@ -280,7 +396,7 @@ function goBack() {
                 padding: 10px 0px;
                 display: flex;
 
-                img {
+                >img {
                     height: 30px;
                     width: 30px;
                     border-radius: 50%;
@@ -309,6 +425,12 @@ function goBack() {
                     font-weight: 400;
                     font-family: "黑体";
                     padding: 5px 0px;
+
+                    img {
+                        width: 100%;
+                        border-radius: 5px;
+                        margin: 5px 0px;
+                    }
                 }
 
                 .replytoreply {

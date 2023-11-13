@@ -12,47 +12,32 @@
             </div>
         </div>
         <div class="content">
-            <div class="posttitle">
-                <span>标题:</span><input v-model="title" type="text">
-            </div>
             <div class="postcontent">
-                <textarea v-model="content" @input="textareaHeightAuto" ref="postcontent" rows="2"
-                    placeholder="Enter the content here"></textarea>
+                <textarea v-model="content" @keydown.enter="publish" @input="textareaHeightAuto" ref="postcontent" rows="2"
+                    placeholder="在此输入回复内容"></textarea>
             </div>
-
         </div>
         <div class="nav">
             <input ref="fileDom" @change="selectFile" style="display: none;" type="file">
-            <div @click="openSelect('p')" class="picture fileico">
+            <div v-show="files.length == 0" @click="openSelect('p')" class="picture fileico">
                 <img src="/src/assets/img/pushPostPicture.png" alt="">Picture
             </div>
-            <div @click="openSelect('v')" class="video fileico">
+            <div v-show="files.length == 0" @click="openSelect('v')" class="video fileico">
                 <img src="/src/assets/img/pushPostVideo.png" alt="">Video
             </div>
-            <div @click="openSelect('f')" class="video fileico">
+            <div v-show="files.length == 0" @click="openSelect('f')" class="video fileico">
                 <img src="/src/assets/img/pushFile.png" alt="">File
             </div>
-            <div @click.stop="showZoneSelect" class="selectZone fileico">
-                <img src="/src/assets/img/selectZone.png" alt="">
-                <span v-show="!selectedZone">选择分区</span>
-                <span v-if="selectedZone">{{ selectedZone['z_name'] }}</span>
-                <div class="zones scrollbar" v-show="zoneSelectVisual">
-                    <div v-show="loading">
-                        加载中...
-                    </div>
-                    <div v-if="!loading">
-                        <div class="zone" @click.stop="selectZone(zone)" v-for="(zone) in zones" :key="zone['z_id']">
-                            <img :src="apiStore.getBaseUrl() + apiStore.getPort() + zone['z_icon']" alt="">
-                            <div>
-                                {{ zone['z_name'] }}
-                            </div>
-                        </div>
+            <div style="flex: 1;">
+                <div class="send" @click="publish">
+                    <img src="/src/assets/img/send.png" alt="">
+                    <div>
+                        Send
                     </div>
                 </div>
             </div>
-            <div class="send fileico" @click="publish">
-                <img src="/src/assets/img/send.png" alt="">Send
-            </div>
+
+
 
         </div>
         <div class="files">
@@ -89,11 +74,13 @@ import { getCurrentDate } from "../tools/date"
 import { filterSize } from "../tools/tools"
 import { message } from "../tools/tools"
 import { publishPostWithPic } from "../api/postAPI"
+import { publishReplyWithFileApi } from "../api/replyAPI"
 import File from "./UI/File.vue"
+import { useRoute } from "vue-router"
 const userStore = storeOfUser()
 const apiStore = storeOfApi()
 const zoneStore = storeOfZone()
-
+const route = useRoute()
 let emits = defineEmits(["refresh"])
 
 // 处理帖子内容高度自适应
@@ -220,46 +207,47 @@ let formData = new FormData()
 function publish() {
     // 错误，遇到一个就不执行方法
     let error = false
-    // 如果没有选分区则方法无效
-    if (!selectedZone.value) {
-        message(2, "请选择分区")
-        error = true
-    }
-    if (!title.value) {
-        message(2, "请输入标题")
-        error = true
-    }
     if (!content.value) {
         message(2, "请输入内容")
     }
     if (error) {
         return;
     }
-    // zId, err := strconv.Atoi(ctx.PostForm("z_id"))
     // uId, err := strconv.Atoi(ctx.PostForm("u_id"))
-    // title := ctx.PostForm("title")
+    // pId, err := strconv.Atoi(ctx.PostForm("p_id"))
     // content := ctx.PostForm("content")
     // date := ctx.PostForm("date")
-    // fileType := ctx.PostForm("fileType")
-    // len, err := strconv.Atoi(ctx.PostForm("len"))
-    formData.append("z_id", selectedZone.value['z_id'])
+    // rId, err := strconv.Atoi(ctx.PostForm("r_id"))
+    // pov := ctx.PostForm("pov")
+    // uNick := ctx.PostForm("u_nick")
+    // // 接收文件
+    // file, err := ctx.FormFile("file")
+    if (!route.query.pId) {
+        return;
+    }
     formData.append("u_id", userStore.get('u_id'))
-    formData.append("title", title.value)
+    formData.append("p_id", route.query.pId + "")
     formData.append("content", content.value)
     formData.append("date", getCurrentDate())
+    // 如果路由中有rid，则就是回复给某个回复的，如果没有，就是0
+    formData.append("r_id", (route.query.rid || 0) + '')
     formData.append("fileType", fileType.value || "")
+    formData.append("u_nick", userStore.get('u_nick'))
     formData.append("len", files.value.length)
-    // 循环文件列表，依次添加文件
+    // 循环文件列表，依次添加文件。在此处只有一个文件
     for (const [index, file] of files.value.entries()) {
-        formData.append(index + '', file.file)
+        formData.append('file', file.file)
     }
-    publishPostWithPic(formData).then(res => {
+    publishReplyWithFileApi(formData).then(res => {
         if (res.status == 200) {
-            message(1, "发布成功")
+            message(1, "回复成功")
             emits('refresh')
-
+            // 清空回复组件
+            content.value = ""
+            fileType.value = ""
+            files.value = []
         } else {
-            message(3, "发布失败，请稍后重试")
+            message(3, "回复失败，请稍后重试")
         }
 
     }).finally(() => {
@@ -275,6 +263,9 @@ function publish() {
     border-radius: 10px;
     padding: 20px;
     background-color: white;
+    margin-top: 20px;
+
+    .head {}
 
     >.useinfo {
         height: 40px;
@@ -357,6 +348,7 @@ function publish() {
                 box-sizing: border-box;
                 padding: 5px;
                 border-radius: 5px;
+                margin-top: 10px;
 
                 &:focus {
                     border: 1px solid #0f6fec;
@@ -377,7 +369,7 @@ function publish() {
         .fileico {
             padding: 5px;
             background-color: #ebeaea;
-            line-height: 15px;
+            // line-height: 15px;
             border-radius: 5px;
             color: #676a79;
             font-size: 14px;
@@ -401,6 +393,23 @@ function publish() {
 
         .send {
             padding: 5px 15px;
+            display: flex;
+            height: 20px;
+            line-height: 20px;
+            width: 65px;
+            float: right;
+            background-color: #ebeaea;
+            color: #676a79;
+            border-radius: 5px;
+            cursor: pointer;
+
+            img {
+                height: 15px;
+                widows: 15px;
+                position: relative;
+                top: 50%;
+                transform: translateY(-50%);
+            }
 
             &:hover {
                 background-color: #5865F2;
@@ -454,11 +463,13 @@ function publish() {
         display: flex;
         flex-wrap: wrap;
 
+
         .file {
             position: relative;
             // height: 60px;
             margin-right: 5px;
-            margin-top: 10px;
+            margin-top: -10px;
+            width: calc(100% - 100px);
 
             .delete {
                 position: absolute;
@@ -486,7 +497,7 @@ function publish() {
 
             video {
                 border-radius: 5px;
-
+                width: 100%;
             }
         }
     }

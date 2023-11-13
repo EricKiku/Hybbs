@@ -72,7 +72,7 @@ function closePreview() {
 .preview {
     user-select: none;
     position: absolute;
-    height: calc(100% - 30px);
+    height: 100%;
     width: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     text-align: center;

@@ -172,3 +172,19 @@ export const handleTopPost = (posts) => {
     }
     return [...topArr, ...normalArr]
 }
+
+// 计算文件大小
+export const filterSize = (size) => {
+
+    if (!size) return '';
+    if (size < pow1024(1)) return size + ' b';
+    if (size < pow1024(2)) return (size / pow1024(1)).toFixed(2) + ' kb';
+    if (size < pow1024(3)) return (size / pow1024(2)).toFixed(2) + ' mb';
+    if (size < pow1024(4)) return (size / pow1024(3)).toFixed(2) + ' gn';
+    return (size / pow1024(4)).toFixed(2) + ' tb'
+}
+
+// 求次幂
+function pow1024(num) {
+    return Math.pow(1024, num)
+}

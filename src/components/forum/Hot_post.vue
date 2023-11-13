@@ -1,6 +1,6 @@
 <template>
     <div ref="scrollBarDom" class="posts scrollbar" @scroll="setScrollbar">
-        <PushPost></PushPost>
+        <PushPost @refresh="refreshPost"></PushPost>
         <Post v-for="(post) in posts.slice((currentPage - 1) * count, currentPage * count)" :key="post['p_id']"
             :post="post">
         </Post>
@@ -81,6 +81,7 @@ function changeCurrentPage(value) {
     scrollBarDom.value.scrollTop = 0
 
 }
+
 </script>
 
 <style lang="less" scoped>

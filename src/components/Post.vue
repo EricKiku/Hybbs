@@ -49,6 +49,14 @@
                         <source :src="apiStore.getBaseUrl() + apiStore.getPort() + post['p_picture'].split('?')[1]">
                     </video>
                 </div>
+                <div class="file" v-if="post['p_filetype'] == 'f'">
+                    <!-- 以后再对文件处理 -->
+                    <div class="item" v-for="(file, index) in post['p_picture'].split('?')" :key="index">
+                        <File @click.stop="" v-show="file" :path="apiStore.getBaseUrl() + apiStore.getPort() + file"
+                            :download="true" :file="{ name: file.slice(file.indexOf('_') + 1), size: '' }">
+                        </File>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="p_bottom">
